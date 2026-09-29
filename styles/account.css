@@ -1,0 +1,27 @@
+.account-status{min-height:18px;margin:12px 0;color:#b9bdc5;font-size:12px;line-height:1.5}
+.account-status.error{color:#ff817b}
+.auth-actions{display:grid;gap:10px}
+.auth-actions .btn{width:100%}
+.auth-secondary{display:flex;justify-content:space-between;gap:12px;margin-top:12px;font-size:11px}
+.auth-secondary button{padding:0;border:0;background:none;color:#ff817b}
+.account-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0}
+.account-summary .mini{min-width:0}
+.admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.admin-user-list{display:grid;gap:8px;margin-top:14px}
+.admin-user-row{padding:11px 12px;background:#14161a;border:1px solid #2d3036;color:#d7d9df;font-size:11px;overflow-wrap:anywhere}
+.account-balances{display:flex;gap:12px;flex-wrap:wrap;color:#aeb4be;font-size:11px}
+.account-password{margin:12px 0 20px;color:#c2c5cb;font-size:11px}
+.account-password summary{width:max-content;max-width:100%;padding:8px 0;cursor:pointer;color:#ef5962}
+.account-password .form-row{margin-top:8px;max-width:560px}
+.form-row{display:grid;grid-template-columns:1fr 150px;gap:10px}
+.admin-grid input,.admin-grid select{width:100%;padding:12px;background:#090a0c;border:1px solid #30333a;border-radius:6px;color:#fff}
+.admin-note{color:#aeb4be;font-size:11px;line-height:1.5}
+.activity-row{padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);line-height:1.5}
+.owned-card{cursor:default}
+.owned-card .card-level{position:absolute;top:48%;right:13%;z-index:3;padding:4px 6px;background:rgba(5,7,11,.86);border:1px solid var(--card-metal);color:var(--card-light);font-size:7px;font-weight:900}
+.owned-card .type{bottom:13%}
+.owned-card .card-actions{position:absolute;bottom:2%;left:11%;right:11%;z-index:4;display:flex;gap:3px}
+.owned-card .card-actions button{flex:1;min-width:0;min-height:25px;padding:3px 2px;border:1px solid #ff3046;background:#270b10;color:#fff;font-size:6px;font-weight:900;line-height:1.15}
+.owned-card .card-actions .upgrade-card{border-color:#e6bd4a;background:#241c0d;color:#fff0bd}
+.owned-card .sell-card:hover{background:#b80c20}
+@media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
