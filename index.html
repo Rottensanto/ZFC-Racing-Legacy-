@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#08090b">
+<title>F1 LEGENDS — Racing Card League</title>
+<style>
+:root{
+  --bg:#07080a; --panel:#101216; --panel2:#15171c; --line:#292c32;
+  --white:#f5f5f5; --muted:#9297a1; --red:#e10600; --red2:#ff2a21;
+  --gold:#d9a92d; --gold2:#ffd75a; --blue:#3297ff; --purple:#b04cff;
+  --green:#36d38b; --shadow:0 25px 70px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+ radial-gradient(circle at 80% -10%,rgba(225,6,0,.16),transparent 30%),
+ radial-gradient(circle at 10% 20%,rgba(255,255,255,.035),transparent 24%),
+ var(--bg);color:var(--white);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+button,input{font:inherit}
+button{cursor:pointer}
+a{text-decoration:none;color:inherit}
+.hidden{display:none!important}
+.container{width:min(1400px,92%);margin:auto}
+.topbar{height:72px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:28px;position:sticky;top:0;z-index:50;background:rgba(7,8,10,.9);backdrop-filter:blur(18px)}
+.logo{font-weight:1000;font-size:31px;font-style:italic;letter-spacing:-4px;color:#fff;line-height:1}
+.logo span{color:var(--red)}
+.nav{display:flex;gap:22px;align-items:center;font-size:13px;font-weight:800;color:#9da1a9}
+.nav a:hover,.nav a.active{color:#fff}
+.spacer{flex:1}
+.currency{display:flex;gap:10px;align-items:center}
+.wallet{background:#111318;border:1px solid #2b2e34;border-radius:11px;padding:8px 12px;display:flex;gap:8px;align-items:center;font-size:12px;font-weight:800}
+.coin{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:#d7a72e;color:#17100a;font-weight:1000;font-size:11px}
+.points .coin{background:var(--red);color:white}
+.avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#333,#111);border:1px solid #555;display:grid;place-items:center;font-size:16px}
+.btn{border:1px solid #3a3d44;background:#15171b;color:white;padding:12px 18px;border-radius:8px;font-weight:900;font-size:12px;letter-spacing:.4px}
+.btn:hover{transform:translateY(-1px);border-color:#666}
+.btn.red{background:var(--red);border-color:var(--red)}
+.btn.red:hover{background:var(--red2)}
+.btn.gold{background:linear-gradient(135deg,#b17c18,#f0c94f);border-color:#f1cb54;color:#17110a}
+.btn.big{padding:15px 25px;font-size:13px}
+
+.page{display:none}.page.active{display:block}
+.hero{min-height:620px;display:flex;align-items:center;position:relative;overflow:hidden;background:
+ linear-gradient(90deg,#07080a 0%,rgba(7,8,10,.82) 34%,rgba(7,8,10,.2) 75%,#07080a 100%),
+ linear-gradient(180deg,transparent 70%,#07080a 100%),
+ url('https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=2200&q=85') center/cover}
+.hero:after{content:"";position:absolute;inset:auto 0 0;height:2px;background:linear-gradient(90deg,transparent,var(--red),transparent)}
+.hero-content{width:min(1400px,92%);margin:auto;position:relative;z-index:2}
+.kicker{color:var(--red2);font-size:12px;font-weight:1000;letter-spacing:3px;text-transform:uppercase}
+.hero h1{font-size:clamp(48px,7vw,94px);line-height:.88;margin:18px 0;max-width:760px;letter-spacing:-5px;text-transform:uppercase}
+.hero h1 span{color:var(--red)}
+.hero p{max-width:560px;color:#b4b7be;line-height:1.7;font-size:16px}
+.hero-actions{display:flex;gap:12px;margin-top:28px}
+.statsbar{border-bottom:1px solid var(--line);border-top:1px solid var(--line);background:#0d0f12}
+.stats{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{padding:25px;border-right:1px solid var(--line);text-align:center}
+.stat b{font-size:28px}.stat small{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:1px;margin-top:5px}
+.section{padding:55px 0}.section-head{display:flex;align-items:end;justify-content:space-between;margin-bottom:25px}
+.section-head h2{margin:0;font-size:30px;text-transform:uppercase;letter-spacing:-1px}.section-head p{color:var(--muted);font-size:13px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+
+.feature{border:1px solid var(--line);background:linear-gradient(145deg,#15171b,#0d0f12);border-radius:15px;padding:28px;min-height:180px;box-shadow:var(--shadow)}
+.feature .icon{font-size:28px;color:var(--red);margin-bottom:20px}.feature h3{margin:0 0 9px}.feature p{margin:0;color:var(--muted);line-height:1.6;font-size:13px}
+
+.auth-wrap{min-height:calc(100vh - 72px);display:grid;place-items:center;padding:50px 20px;background:
+ linear-gradient(90deg,rgba(0,0,0,.7),rgba(0,0,0,.35)),url('https://images.unsplash.com/photo-1536323760109-ca8c07450053?auto=format&fit=crop&w=1800&q=80') center/cover}
+.auth{width:min(450px,100%);background:rgba(13,15,18,.94);border:1px solid #333;border-radius:18px;padding:38px;box-shadow:var(--shadow)}
+.auth .logo{text-align:center;margin-bottom:28px}.auth h2{font-size:27px;text-align:center;margin:0 0 7px}.auth .sub{text-align:center;color:var(--muted);font-size:13px;margin-bottom:27px}
+.field{margin-bottom:15px}.field label{display:block;font-size:11px;font-weight:900;color:#b9bdc5;margin-bottom:7px;text-transform:uppercase}.field input{width:100%;padding:14px;background:#090a0c;border:1px solid #30333a;border-radius:8px;color:#fff;outline:none}.field input:focus{border-color:var(--red)}
+.auth .btn{width:100%;margin-top:6px}.social{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:14px}.social button{padding:11px;border:1px solid #30333a;background:#17191d;color:white;border-radius:7px}.divider{display:flex;gap:10px;align-items:center;color:#666;margin:20px 0;font-size:10px}.divider:before,.divider:after{content:"";height:1px;background:#2b2d32;flex:1}
+
+.dashboard{padding:35px 0}.dashgrid{display:grid;grid-template-columns:230px 1fr;gap:20px}.sidebar{background:#0d0f12;border:1px solid var(--line);border-radius:13px;padding:13px;height:max-content;position:sticky;top:92px}.side-title{padding:14px;color:#555;font-size:10px;font-weight:1000;letter-spacing:2px}.side a{display:block;padding:12px 14px;border-radius:7px;color:#9297a1;font-size:12px;font-weight:800}.side a:hover,.side a.active{background:#1a1c20;color:white}.side a.active{border-left:2px solid var(--red)}
+.dash-main{min-width:0}.welcome{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.welcome h1{margin:0;font-size:32px}.welcome p{margin:5px 0 0;color:var(--muted);font-size:12px}
+.panel{background:#0f1115;border:1px solid var(--line);border-radius:13px;padding:20px}.panel h3{margin:0 0 15px;font-size:13px;text-transform:uppercase;letter-spacing:1px}.dashboard-grid{display:grid;grid-template-columns:1.4fr .8fr;gap:18px}
+.progress{height:7px;background:#272a30;border-radius:99px;overflow:hidden}.progress i{display:block;height:100%;width:67%;background:var(--red)}
+.mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mini{padding:14px;background:#14161a;border:1px solid #272a30;border-radius:9px}.mini small{display:block;color:#7d8189;font-size:9px;text-transform:uppercase;font-weight:900}.mini b{display:block;font-size:19px;margin-top:5px}
+.convert{margin-top:18px}.range{width:100%;accent-color:var(--red)}.convert-line{display:flex;justify-content:space-between;color:#9297a1;font-size:10px;margin:7px 0}
+.race-banner{min-height:220px;border-radius:12px;padding:24px;background:
+ linear-gradient(90deg,rgba(0,0,0,.92),rgba(0,0,0,.3)),url('https://images.unsplash.com/photo-1541443131876-44b03de101c5?auto=format&fit=crop&w=1200&q=80') center/cover;display:flex;flex-direction:column;justify-content:end}
+.race-banner .tag{font-size:10px;color:var(--red2);font-weight:1000;letter-spacing:2px}.race-banner h2{margin:5px 0;font-size:28px}.race-banner p{color:#bbb;font-size:11px}
+
+.card{position:relative;aspect-ratio:2/3;min-width:0;border-radius:13px;padding:8px;overflow:hidden;background:#111;border:2px solid #34373d;box-shadow:0 14px 35px rgba(0,0,0,.45);transition:.25s;cursor:pointer}
+.card:hover{transform:translateY(-7px) rotate(-1deg);box-shadow:0 25px 55px rgba(0,0,0,.65)}
+.card:before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.13),transparent 22%,transparent 70%,rgba(255,255,255,.08));pointer-events:none}
+.card .photo{height:63%;border-radius:9px;background-size:cover;background-position:center;filter:saturate(.92);position:relative;overflow:hidden}
+.card .photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 55%,rgba(0,0,0,.7))}
+.card .rating{position:absolute;top:15px;left:15px;font-size:27px;font-weight:1000;text-shadow:0 3px 10px #000}.card .rarity{position:absolute;top:16px;right:12px;font-size:8px;font-weight:1000;letter-spacing:1px}
+.card .info{padding:9px 5px}.card .name{font-size:14px;font-weight:1000}.card .year{font-size:9px;color:#999;margin-top:3px}.card .type{position:absolute;bottom:10px;right:10px;font-size:8px;font-weight:1000;letter-spacing:1px}
+.card.common{border-color:#68717c}.card.rare{border-color:#267fd2;box-shadow:0 0 22px rgba(50,151,255,.12)}.card.epic{border-color:#a33bdf;box-shadow:0 0 26px rgba(176,76,255,.16)}.card.icon{border-color:#d8a82c;box-shadow:0 0 30px rgba(217,169,45,.22)}.card.legend{border-color:#ffd957;box-shadow:0 0 35px rgba(255,215,87,.3);background:linear-gradient(145deg,#231b08,#111)}
+.cards-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+
+.pack{border:1px solid #34373c;border-radius:15px;background:linear-gradient(145deg,#15171b,#0c0d10);padding:22px;text-align:center;transition:.25s}.pack:hover{transform:translateY(-5px);border-color:#666}.pack-art{height:260px;display:grid;place-items:center;position:relative}.pack-art .foil{width:145px;height:220px;border-radius:10px;background:linear-gradient(135deg,#292d33,#0d0f12 40%,#252a31);border:2px solid #737982;box-shadow:0 18px 45px #000;transform:rotate(-3deg);display:flex;flex-direction:column;justify-content:center;align-items:center}.pack.gold .foil{border-color:#d8a82c;background:linear-gradient(135deg,#4d3911,#0e0f11 40%,#8d671b)}.pack.legend .foil{border-color:#f3ce57;background:linear-gradient(135deg,#6a4c0d,#111 40%,#d3a932)}.pack-art .foil b{font-size:28px;font-style:italic}.pack-art .foil span{font-size:11px;letter-spacing:3px;margin-top:12px}
+.price{font-size:21px;font-weight:1000;margin:13px 0}.pack p{font-size:11px;color:#8e929a;min-height:30px}.odds{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:14px 0}.odds span{font-size:8px;padding:5px 7px;background:#1b1d21;border-radius:5px;color:#aaa}.odds .g{color:var(--gold2)}
+
+.collection-head{display:flex;gap:12px;align-items:center;margin-bottom:20px}.search{flex:1;background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.filter{background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.collection-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:15px}
+
+.showroom{min-height:calc(100vh - 72px);background:
+ radial-gradient(circle at 50% 85%,rgba(255,191,49,.3),transparent 25%),
+ linear-gradient(180deg,#07080a 0%,#12100b 100%);position:relative;overflow:hidden;padding:35px 0}
+.showroom:before{content:"";position:absolute;left:0;right:0;bottom:0;height:45%;background:linear-gradient(105deg,transparent 47%,rgba(255,255,255,.08) 48%,transparent 49%),linear-gradient(75deg,transparent 47%,rgba(255,255,255,.06) 48%,transparent 49%);opacity:.4}
+.showroom-title{text-align:center;position:relative;z-index:2}.showroom-title h1{font-size:44px;margin:5px 0;letter-spacing:-2px}.showroom-title p{color:#d3a92f;letter-spacing:6px;font-size:11px;font-weight:1000}
+.opening-cards{width:min(1050px,92%);margin:55px auto;display:grid;grid-template-columns:repeat(5,1fr);gap:20px;position:relative;z-index:3}
+.opening-card{opacity:0;transform:translateY(100px) scale(.7) rotateY(90deg);animation:reveal .9s forwards;animation-delay:var(--delay)}
+@keyframes reveal{60%{transform:translateY(-15px) scale(1.05) rotateY(0)}100%{opacity:1;transform:translateY(0) scale(1) rotateY(0)}}
+.opening-card .card{box-shadow:0 0 50px rgba(255,198,55,.25)}
+.showroom-actions{text-align:center;position:relative;z-index:4}
+
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:100;display:none;place-items:center;padding:20px}.modal.open{display:grid}.modal-box{width:min(720px,100%);background:#101216;border:1px solid #363a42;border-radius:18px;padding:30px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center}.close{background:none;border:0;color:#999;font-size:25px}.purchase{display:grid;grid-template-columns:260px 1fr;gap:30px;align-items:center}.purchase .pack-art{height:330px}.purchase-info h2{font-size:34px;margin:0}.purchase-info p{color:#999;line-height:1.6}.purchase-info .cost{font-size:27px;font-weight:1000;margin:20px 0}.success{padding:15px;background:rgba(54,211,139,.1);border:1px solid rgba(54,211,139,.35);color:#68e6aa;border-radius:8px;font-size:12px;margin-top:15px}
+
+.toast{position:fixed;right:22px;bottom:22px;z-index:200;background:#15181d;border:1px solid #3b3e45;border-left:3px solid var(--red);padding:14px 18px;border-radius:9px;box-shadow:var(--shadow);font-size:12px;display:none}.toast.show{display:block;animation:toast .25s}.footer{border-top:1px solid var(--line);padding:28px 0;color:#62666f;font-size:10px;text-align:center}
+
+@media(max-width:1050px){.nav{display:none}.dashgrid{grid-template-columns:1fr}.sidebar{display:none}.dashboard-grid{grid-template-columns:1fr}.collection-grid{grid-template-columns:repeat(4,1fr)}.cards-row{grid-template-columns:repeat(5,1fr)}}
+@media(max-width:760px){.topbar{height:62px}.currency{display:none}.hero{min-height:560px}.hero h1{letter-spacing:-3px}.stats{grid-template-columns:repeat(2,1fr)}.grid3,.grid4{grid-template-columns:1fr}.cards-row{grid-template-columns:repeat(2,1fr)}.cards-row .card:nth-child(n+3){display:none}.collection-grid{grid-template-columns:repeat(2,1fr)}.opening-cards{grid-template-columns:repeat(2,1fr)}.opening-card:nth-child(n+4){display:none}.purchase{grid-template-columns:1fr}.purchase .pack-art{height:240px}.dashboard{padding-top:22px}.welcome{align-items:flex-start;gap:10px}.welcome .btn{display:none}}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container" style="display:flex;align-items:center;width:100%;gap:25px">
+    <a class="logo" href="#" onclick="showPage('home')">F<span>1</span></a>
+    <nav class="nav">
+      <a href="#" onclick="showPage('home')" data-nav="home">HOME</a>
+      <a href="#" onclick="showPage('landing')" data-nav="landing">ABOUT</a>
+      <a href="#" onclick="showPage('dashboard')" data-nav="dashboard">LEAGUE</a>
+      <a href="#" onclick="showPage('collection')" data-nav="collection">CARDS</a>
+      <a href="#" onclick="showPage('shop')" data-nav="shop">SHOP</a>
+      <a href="#" onclick="showPage('dashboard')" data-nav="dashboard">LEADERBOARD</a>
+    </nav>
+    <div class="spacer"></div>
+    <div class="currency" id="wallet">
+      <div class="wallet"><span class="coin">C</span><span id="coinCount">2,450</span></div>
+      <div class="wallet points"><span class="coin">P</span><span id="pointCount">15,320</span></div>
+    </div>
+    <button class="avatar" onclick="showPage('dashboard')">SB</button>
+    <button class="btn red" id="loginTop" onclick="showPage('login')">LOGIN</button>
+  </div>
+</header>
+
+<main>
+<section id="home" class="page active">
+  <div class="hero">
+    <div class="hero-content">
+      <div class="kicker">THE ULTIMATE RACING CARD EXPERIENCE</div>
+      <h1>RACE.<br>EARN.<br>COLLECT.<br><span>LEGENDS.</span></h1>
+      <p>Fahre Rennen in deiner Sim-Racing-Liga, sammle Liga-Punkte und verwandle deine Performance in Coins. Öffne Packs und sammle Fahrer und F1-Boliden aus 75 Jahren Motorsport-Geschichte.</p>
+      <div class="hero-actions">
+        <button class="btn red big" onclick="showPage('login')">START YOUR JOURNEY</button>
+        <button class="btn big" onclick="showPage('collection')">EXPLORE CARDS</button>
+      </div>
+    </div>
+  </div>
+  <div class="statsbar"><div class="container stats">
+    <div class="stat"><b>75+</b><small>YEARS OF HISTORY</small></div>
+    <div class="stat"><b>1,000+</b><small>DRIVER & CAR CARDS</small></div>
+    <div class="stat"><b>LIVE</b><small>SIM RACING EVENTS</small></div>
+    <div class="stat"><b>∞</b><small>COLLECT THE LEGENDS</small></div>
+  </div></div>
+  <section class="section"><div class="container">
+    <div class="section-head"><div><h2>How it works</h2><p>Dein Weg vom Rennen zur Sammlung.</p></div></div>
+    <div class="grid3">
+      <div class="feature"><div class="icon">01</div><h3>RACE & EARN</h3><p>Dein Admin-Team bewertet die Liga-Rennen. Aus deiner Leistung entstehen Punkte, die in deinem Profil gesammelt werden.</p></div>
+      <div class="feature"><div class="icon">02</div><h3>CONVERT</h3><p>Wandle einen festgelegten Anteil deiner Liga-Punkte in Spiel-Coins um und entscheide selbst, wann du sie einsetzen möchtest.</p></div>
+      <div class="feature"><div class="icon">03</div><h3>COLLECT</h3><p>Kaufe Packs, öffne sie im Showroom und baue eine Sammlung von Fahrern und Fahrzeugen aus verschiedenen Epochen auf.</p></div>
+    </div>
+  </div></section>
+  <section class="section" style="padding-top:0"><div class="container">
+    <div class="section-head"><div><h2>Featured Legends</h2><p>Beispiele für die höchste Kartenklasse.</p></div><button class="btn" onclick="showPage('collection')">VIEW COLLECTION</button></div>
+    <div class="cards-row" id="homeCards"></div>
+  </div></section>
+</section>
+
+<section id="landing" class="page">
+  <div class="hero" style="min-height:540px;background-image:linear-gradient(90deg,#07080a 0%,rgba(7,8,10,.78) 42%,rgba(7,8,10,.2) 100%),url('https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=2200&q=85')">
+    <div class="hero-content">
+      <div class="kicker">75 YEARS OF RACING HISTORY</div>
+      <h1>YOUR<br><span>LEGACY</span><br>STARTS HERE.</h1>
+      <p>Eine digitale Sammlung, die deine Sim-Racing-Leistung mit der Geschichte des Formel-Rennsports verbindet.</p>
+      <div class="hero-actions"><button class="btn red big" onclick="showPage('login')">CREATE ACCOUNT</button><button class="btn big" onclick="showPage('shop')">VIEW PACKS</button></div>
+    </div>
+  </div>
+  <section class="section"><div class="container">
+    <div class="grid3">
+      <div class="feature"><div class="icon">◉</div><h3>LEAGUE POINTS</h3><p>Renne in deiner Liga und erhalte Punkte anhand der definierten Wettbewerbs- und Admin-Systeme.</p></div>
+      <div class="feature"><div class="icon">◇</div><h3>DRIVER CARDS</h3><p>Jede Karte besitzt Rating, Jahr, Seltenheit und individuelle Darstellung.</p></div>
+      <div class="feature"><div class="icon">◆</div><h3>BUILD YOUR LEGACY</h3><p>Verwalte, tausche und verkaufe deine Karten und entwickle deine persönliche Sammlung.</p></div>
+    </div>
+  </div></section>
+</section>
+
+<section id="login" class="page">
+  <div class="auth-wrap"><div class="auth">
+    <div class="logo">F<span>1</span></div><h2>WELCOME BACK</h2><div class="sub">Logge dich ein, um deine Racing-Legacy fortzusetzen.</div>
+    <div class="field"><label>E-Mail oder Username</label><input id="loginUser" placeholder="name@example.com"></div>
+    <div class="field"><label>Passwort</label><input type="password" placeholder="••••••••"></div>
+    <button class="btn red big" onclick="doLogin()">LOGIN</button>
+    <div class="divider">ODER WEITER MIT</div>
+    <div class="social"><button>Discord</button><button>Google</button><button>PSN</button></div>
+    <p style="text-align:center;color:#737780;font-size:11px;margin-top:22px">Noch kein Konto? <a href="#" style="color:var(--red2)" onclick="toast('Registrierung wird im nächsten Entwicklungsschritt aktiviert.')">SIGN UP</a></p>
+  </div></div>
+</section>
+
+<section id="dashboard" class="page">
+  <div class="dashboard"><div class="container dashgrid">
+    <aside class="sidebar">
+      <div class="side-title">PLAYER HUB</div>
+      <div class="side"><a class="active" href="#" onclick="showPage('dashboard')">▦ Dashboard</a><a href="#" onclick="showPage('collection')">▣ My Cards</a><a href="#" onclick="showPage('collection')">◇ Collection</a><a href="#" onclick="showPage('shop')">▤ Packs</a><a href="#" onclick="showPage('shop')">↔ Marketplace</a><a href="#" onclick="toast('Leaderboard Demo')">♜ Leaderboard</a><a href="#" onclick="toast('Achievements Demo')">★ Achievements</a><a href="#" onclick="toast('Settings Demo')">⚙ Settings</a></div>
+      <div class="side-title">NEXT RACE</div><div style="padding:12px;color:#bbb;font-size:11px;line-height:1.7"><b style="color:#fff">ITALIAN GP</b><br>Monza, Italy<br><span style="color:var(--red2)">Qualifying · 19:30</span><br>Race · Sunday</div>
+    </aside>
+    <div class="dash-main">
+      <div class="welcome"><div><h1>Welcome back, Santo.</h1><p>Dein aktueller Stand in der Racing League.</p></div><button class="btn red" onclick="showPage('shop')">OPEN SHOP</button></div>
+      <div class="race-banner"><div class="tag">NEXT EVENT</div><h2>ITALIAN GRAND PRIX</h2><p>MONZA · QUALIFYING 19:30 · RACE SUNDAY</p></div>
+      <div style="height:18px"></div>
+      <div class="dashboard-grid">
+        <div>
+          <div class="panel"><h3>Your Progress</h3><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px"><b>LEVEL 24</b><span style="color:#888">15,320 / 25,000 XP</span></div><div class="progress"><i></i></div>
+            <div class="mini-grid" style="margin-top:15px"><div class="mini"><small>League Points</small><b id="dashPoints">15,320</b></div><div class="mini"><small>Coins</small><b id="dashCoins">2,450</b></div><div class="mini"><small>Collection</small><b>4,680</b></div></div>
+            <div class="convert"><h3 style="margin-top:20px">Convert Points to Coins</h3><div class="convert-line"><span>0%</span><span id="convertValue">50% MAX</span></div><input class="range" id="convertRange" type="range" min="0" max="50" value="25" oninput="updateConvert()"><div class="convert-line"><span>Points used: <b id="usedPoints">3,830</b></span><span>You receive: <b style="color:#e9bd43" id="receiveCoins">1,915 C</b></span></div><button class="btn red" onclick="convertPoints()">CONVERT</button></div>
+          </div>
+          <div style="height:18px"></div>
+          <div class="panel"><div class="section-head" style="margin-bottom:15px"><div><h3 style="margin:0">My Collection</h3></div><button class="btn" onclick="showPage('collection')">VIEW ALL</button></div><div class="cards-row" id="dashCards"></div></div>
+        </div>
+        <div>
+          <div class="panel"><h3>Recent Activity</h3><div id="activity" style="font-size:11px;color:#a5a9b0;line-height:2.5">
+            <div>◈ You opened a <b style="color:#d9a92d">Gold Pack</b><span style="float:right;color:#666">2h</span></div>
+            <div>◇ You earned <b style="color:#fff">250 points</b><span style="float:right;color:#666">5h</span></div>
+            <div>↔ You sold <b style="color:#fff">A. Senna</b><span style="float:right;color:#666">1d</span></div>
+            <div>★ Collection reached <b style="color:#fff">4,680</b><span style="float:right;color:#666">2d</span></div>
+          </div></div>
+          <div style="height:18px"></div>
+          <div class="panel"><h3>Top Players</h3><div style="line-height:2.8;font-size:11px"><b>#1</b> Maximus44 <span style="float:right">25,680</span><br><b>#2</b> FastLegend <span style="float:right">22,450</span><br><b>#3</b> RacingKing <span style="float:right">21,320</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div></div>
+</section>
+
+<section id="shop" class="page">
+  <div class="section"><div class="container">
+    <div class="section-head"><div><h2>Pack Shop</h2><p>Öffne 5 Karten pro Pack. Höhere Packs erhöhen die Chance auf seltene Karten.</p></div></div>
+    <div class="grid4">
+      <div class="pack"><div class="pack-art"><div class="foil"><b>F1</b><span>BRONZE</span></div></div><h3>BRONZE PACK</h3><p>5 Karten · Common+ · Einstiegspack</p><div class="odds"><span>COMMON 70%</span><span>RARE 25%</span><span>EPIC 5%</span></div><div class="price">1,000 C</div><button class="btn red" onclick="openPurchase('BRONZE PACK',1000,'bronze')">BUY PACK</button></div>
+      <div class="pack"><div class="pack-art"><div class="foil"><b>F1</b><span>SILVER</span></div></div><h3>SILVER PACK</h3><p>5 Karten · Rare+ · bessere Chancen</p><div class="odds"><span>COMMON 40%</span><span>RARE 40%</span><span>EPIC 17%</span></div><div class="price">3,000 C</div><button class="btn red" onclick="openPurchase('SILVER PACK',3000,'silver')">BUY PACK</button></div>
+      <div class="pack gold"><div class="pack-art"><div class="foil"><b>F1</b><span>GOLD</span></div></div><h3>GOLD PACK</h3><p>5 Karten · Rare+ · hohe Icon-Chance</p><div class="odds"><span>COMMON 40%</span><span>RARE 35%</span><span>EPIC 15%</span><span class="g">ICON 8%</span></div><div class="price">7,500 C</div><button class="btn gold" onclick="openPurchase('GOLD PACK',7500,'gold')">BUY PACK</button></div>
+      <div class="pack legend"><div class="pack-art"><div class="foil"><b>F1</b><span>LEGEND</span></div></div><h3>LEGEND PACK</h3><p>5 Karten · Epic+ · seltene historische Icons</p><div class="odds"><span>RARE 35%</span><span>EPIC 40%</span><span class="g">ICON 20%</span><span class="g">LEGEND 5%</span></div><div class="price">15,000 C</div><button class="btn gold" onclick="openPurchase('LEGEND PACK',15000,'legend')">BUY PACK</button></div>
+    </div>
+  </div></section>
+</section>
+
+<section id="collection" class="page">
+  <div class="section"><div class="container">
+    <div class="section-head"><div><h2>My Collection</h2><p>Deine Fahrer- und Fahrzeugkarten aus allen Epochen.</p></div><div style="color:#999;font-size:11px">COLLECTION VALUE <b style="color:#fff">4,680</b></div></div>
+    <div class="collection-head"><input class="search" id="search" placeholder="Search driver, team, year..." oninput="filterCards()"><select class="filter" id="rarityFilter" onchange="filterCards()"><option value="all">All Ratings</option><option value="legend">Legend</option><option value="icon">Icon</option><option value="epic">Epic</option><option value="rare">Rare</option></select><select class="filter" id="sortFilter" onchange="filterCards()"><option value="rating">Rating</option><option value="year">Year</option><option value="name">Name</option></select></div>
+    <div class="collection-grid" id="collectionGrid"></div>
+  </div></section>
+</section>
+
+<section id="showroom" class="page">
+  <div class="showroom"><div class="container">
+    <div class="showroom-title"><p>PACK OPENING</p><h1 id="showPackName">GOLD PACK</h1><div style="color:#777;font-size:11px">YOUR 5 NEW CARDS</div></div>
+    <div class="opening-cards" id="openingCards"></div>
+    <div class="showroom-actions"><button class="btn red big" onclick="showPage('collection')">ADD TO COLLECTION</button> <button class="btn big" onclick="showPage('shop')">OPEN ANOTHER</button></div>
+  </div></div>
+</section>
+</main>
+
+<footer class="footer">F1 LEGENDS · CONCEPT UI · 2026 · Fan-made prototype interface. Official F1 trademarks belong to their respective owners.</footer>
+
+<div class="modal" id="purchaseModal"><div class="modal-box">
+  <div class="modal-head"><b>PACK PURCHASE</b><button class="close" onclick="closeModal()">×</button></div>
+  <div class="purchase">
+    <div class="pack-art"><div class="foil" id="modalFoil" style="width:145px;height:220px;border-radius:10px;background:linear-gradient(135deg,#4d3911,#0e0f11 40%,#8d671b);border:2px solid #d8a82c;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 18px 45px #000;transform:rotate(-3deg)"><b style="font-size:28px;font-style:italic">F1</b><span id="modalPackText" style="font-size:11px;letter-spacing:3px;margin-top:12px">GOLD</span></div></div>
+    <div class="purchase-info"><h2 id="modalName">GOLD PACK</h2><p>5 zufällige Karten. Die tatsächliche Verteilung wird erst beim Öffnen des Packs bestimmt. Karten können später in deiner Collection verwaltet oder auf dem Marketplace angeboten werden.</p><div class="cost"><span class="coin">C</span> <span id="modalCost">7,500</span></div><button class="btn gold big" style="width:100%" onclick="buyPack()">CONFIRM PURCHASE</button><div id="purchaseMessage"></div></div>
+  </div>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const cards=[
+ {name:'Juan Manuel Fangio',short:'FANGIO',year:1954,rating:98,rarity:'legend',type:'LEGEND',img:'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=700&q=80'},
+ {name:'Ayrton Senna',short:'SENNA',year:1990,rating:94,rarity:'icon',type:'ICON',img:'https://images.unsplash.com/photo-1553440569-bcc63803a83d?auto=format&fit=crop&w=700&q=80'},
+ {name:'Michael Schumacher',short:'SCHUMACHER',year:2001,rating:91,rarity:'epic',type:'EPIC',img:'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=700&q=80'},
+ {name:'Lewis Hamilton',short:'HAMILTON',year:2020,rating:88,rarity:'rare',type:'RARE',img:'https://images.unsplash.com/photo-1544829099-b9a0c07fad1a?auto=format&fit=crop&w=700&q=80'},
+ {name:'Max Verstappen',short:'VERSTAPPEN',year:2023,rating:85,rarity:'rare',type:'RARE',img:'https://images.unsplash.com/photo-1511919884226-fd3cad34687c?auto=format&fit=crop&w=700&q=80'},
+ {name:'Alain Prost',short:'PROST',year:1988,rating:90,rarity:'epic',type:'EPIC',img:'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=700&q=80'},
+ {name:'Kimi Räikkönen',short:'RÄIKKÖNEN',year:2007,rating:82,rarity:'rare',type:'RARE',img:'https://images.unsplash.com/photo-1547744173-9e0f5f9d5e5f?auto=format&fit=crop&w=700&q=80'},
+ {name:'Nico Rosberg',short:'ROSBERG',year:2013,rating:83,rarity:'rare',type:'RARE',img:'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?auto=format&fit=crop&w=700&q=80'},
+ {name:'Nigel Mansell',short:'MANSELL',year:1992,rating:87,rarity:'rare',type:'RARE',img:'https://images.unsplash.com/photo-1504215680853-026ed2a45def?auto=format&fit=crop&w=700&q=80'},
+ {name:'Ferrari F2004',short:'F2004',year:2004,rating:94,rarity:'icon',type:'CAR',img:'https://images.unsplash.com/photo-1494976388531-d1058494cdd8?auto=format&fit=crop&w=700&q=80'},
+ {name:'McLaren MP4/4',short:'MP4/4',year:1988,rating:96,rarity:'legend',type:'CAR',img:'https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=700&q=80'},
+ {name:'Red Bull RB19',short:'RB19',year:2023,rating:92,rarity:'icon',type:'CAR',img:'https://images.unsplash.com/photo-1511994477422-b69e44bd4ea9?auto=format&fit=crop&w=700&q=80'}
+];
+let coins=2450, points=15320, selectedPack={name:'GOLD PACK',cost:7500,type:'gold'};
+
+function cardHTML(c){
+ return `<div class="card ${c.rarity}" onclick="sellCard('${c.short}',${c.rating})"><div class="photo" style="background-image:url('${c.img}')"></div><div class="rating">${c.rating}</div><div class="rarity">${c.type}</div><div class="info"><div class="name">${c.short}</div><div class="year">${c.year}</div></div><div class="type">F1 LEGENDS</div></div>`;
+}
+function render(){
+ document.getElementById('homeCards').innerHTML=cards.slice(0,5).map(cardHTML).join('');
+ document.getElementById('dashCards').innerHTML=cards.slice(0,5).map(cardHTML).join('');
+ filterCards();
+}
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ const el=document.getElementById(id); if(el) el.classList.add('active');
+ document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',a.dataset.nav===id));
+ window.scrollTo({top:0,behavior:'smooth'});
+ if(id==='dashboard'||id==='collection'||id==='shop'||id==='home') document.getElementById('loginTop').textContent='PROFILE';
+ else document.getElementById('loginTop').textContent='LOGIN';
+}
+function toast(msg){
+ const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
+}
+function doLogin(){
+ const u=document.getElementById('loginUser').value.trim();
+ if(!u){toast('Bitte E-Mail oder Username eingeben.');return}
+ document.getElementById('loginTop').textContent='PROFILE';toast('Login erfolgreich — Demo-Profil geladen.');showPage('dashboard');
+}
+function updateConvert(){
+ const pct=+document.getElementById('convertRange').value;
+ const used=Math.floor(points*pct/100), receive=used;
+ document.getElementById('usedPoints').textContent=used.toLocaleString();
+ document.getElementById('receiveCoins').textContent=receive.toLocaleString()+' C';
+ document.getElementById('convertValue').textContent=pct+'% MAX';
+}
+function convertPoints(){
+ const pct=+document.getElementById('convertRange').value;
+ const used=Math.floor(points*pct/100);
+ if(used<=0){toast('Wähle zuerst einen Umwandlungswert.');return}
+ points-=used;coins+=used;
+ document.getElementById('pointCount').textContent=points.toLocaleString();
+ document.getElementById('coinCount').textContent=coins.toLocaleString();
+ document.getElementById('dashPoints').textContent=points.toLocaleString();
+ document.getElementById('dashCoins').textContent=coins.toLocaleString();
+ updateConvert();toast(used.toLocaleString()+' Punkte wurden in '+used.toLocaleString()+' Coins umgewandelt.');
+}
+function openPurchase(name,cost,type){
+ selectedPack={name,cost,type};
+ document.getElementById('modalName').textContent=name;document.getElementById('modalCost').textContent=cost.toLocaleString();
+ document.getElementById('modalPackText').textContent=name.replace(' PACK','');
+ document.getElementById('purchaseMessage').innerHTML='';
+ document.getElementById('purchaseModal').classList.add('open');
+}
+function closeModal(){document.getElementById('purchaseModal').classList.remove('open')}
+function buyPack(){
+ if(coins<selectedPack.cost){document.getElementById('purchaseMessage').innerHTML='<div class="success" style="color:#ff817b;border-color:#7b2926;background:rgba(225,6,0,.1)">Nicht genügend Coins. Wandle zuerst Liga-Punkte um.</div>';return}
+ coins-=selectedPack.cost;document.getElementById('coinCount').textContent=coins.toLocaleString();document.getElementById('dashCoins').textContent=coins.toLocaleString();
+ closeModal();openShowroom(selectedPack.name);
+}
+function openShowroom(packName){
+ document.getElementById('showPackName').textContent=packName;
+ const pool=cards.slice().sort(()=>Math.random()-.5).slice(0,5);
+ document.getElementById('openingCards').innerHTML=pool.map((c,i)=>`<div class="opening-card" style="--delay:${i*.35}s">${cardHTML(c)}</div>`).join('');
+ showPage('showroom');
+}
+function filterCards(){
+ const q=(document.getElementById('search')?.value||'').toLowerCase();
+ const r=document.getElementById('rarityFilter')?.value||'all';
+ const s=document.getElementById('sortFilter')?.value||'rating';
+ let arr=cards.filter(c=>(r==='all'||c.rarity===r)&&(`${c.name} ${c.short} ${c.year}`.toLowerCase().includes(q)));
+ arr.sort((a,b)=>s==='rating'?b.rating-a.rating:s==='year'?b.year-a.year:a.name.localeCompare(b.name));
+ const grid=document.getElementById('collectionGrid');if(grid)grid.innerHTML=arr.map(cardHTML).join('');
+}
+function sellCard(name,rating){
+ if(document.getElementById('collection').classList.contains('active')){
+   const value=Math.max(500,Math.round(rating*100));
+   if(confirm(`${name} für ${value.toLocaleString()} Coins verkaufen?`)){coins+=value;document.getElementById('coinCount').textContent=coins.toLocaleString();toast(name+' wurde für '+value.toLocaleString()+' Coins verkauft.')}
+ }
+}
+document.getElementById('purchaseModal').addEventListener('click',e=>{if(e.target.id==='purchaseModal')closeModal()});
+render();updateConvert();
+</script>
+</body>
+</html>
