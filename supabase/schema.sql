@@ -82,10 +82,12 @@ create table if not exists public.point_ledger (
   user_id uuid not null references public.profiles(id) on delete cascade,
   points_delta bigint not null,
   event_name text not null,
-  finish_position smallint not null check (finish_position between 1 and 10),
+  finish_position smallint check (finish_position between 1 and 10),
   admin_id uuid not null references auth.users(id),
   created_at timestamptz not null default now()
 );
+
+alter table public.point_ledger alter column finish_position drop not null;
 
 create index if not exists point_ledger_owner_idx on public.point_ledger(user_id, created_at desc);
 create unique index if not exists point_ledger_user_event_unique on public.point_ledger(user_id, lower(event_name));
@@ -462,15 +464,53 @@ begin
 end;
 $$;
 
+create or replace function public.admin_award_custom_points(p_email text, p_points bigint, p_event_name text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_admin_id uuid := auth.uid();
+  v_user_id uuid;
+  v_ledger_id uuid;
+  v_total bigint;
+begin
+  if v_admin_id is null or not public.is_admin() then raise exception 'Admin-Berechtigung erforderlich.'; end if;
+  if p_points is null or p_points < 1 then raise exception 'Mindestens einen F1-Punkt eingeben.'; end if;
+  if p_event_name is null or length(trim(p_event_name)) = 0 then raise exception 'Rennen oder Event angeben.'; end if;
+
+  select id into v_user_id from public.profiles where lower(email) = lower(trim(p_email));
+  if v_user_id is null then raise exception 'Kein Konto mit dieser E-Mail gefunden.'; end if;
+  insert into public.point_ledger(user_id, points_delta, event_name, finish_position, admin_id)
+    values (v_user_id, p_points, trim(p_event_name), null, v_admin_id)
+    on conflict do nothing
+    returning id into v_ledger_id;
+  if v_ledger_id is null then
+    select f1_points into v_total from public.profiles where id = v_user_id;
+    return jsonb_build_object('email', lower(trim(p_email)), 'points_awarded', 0, 'new_balance', v_total, 'already_awarded', true);
+  end if;
+
+  update public.profiles as p
+    set f1_points = p.f1_points + p_points
+    where p.id = v_user_id
+    returning p.f1_points into v_total;
+
+  return jsonb_build_object('email', lower(trim(p_email)), 'points_awarded', p_points, 'new_balance', v_total, 'already_awarded', false);
+end;
+$$;
+
 revoke all on function public.purchase_pack(text) from public, anon;
 revoke all on function public.sell_user_card(uuid) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
 revoke all on function public.convert_f1_points(bigint) from public, anon;
 revoke all on function public.admin_award_race_points(text, smallint, text) from public, anon;
+revoke all on function public.admin_award_custom_points(text, bigint, text) from public, anon;
 revoke all on function public.claim_welcome_bonus() from public, anon;
 grant execute on function public.purchase_pack(text) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
 grant execute on function public.upgrade_user_card(uuid) to authenticated;
 grant execute on function public.convert_f1_points(bigint) to authenticated;
 grant execute on function public.admin_award_race_points(text, smallint, text) to authenticated;
+grant execute on function public.admin_award_custom_points(text, bigint, text) to authenticated;
 grant execute on function public.claim_welcome_bonus() to authenticated;

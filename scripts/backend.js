@@ -118,7 +118,7 @@ function renderRecentActivity(coinRows, pointRows) {
      return { text, createdAt: row.created_at };
    }),
    ...pointRows.map(row => ({
-     text: `+${Number(row.points_delta).toLocaleString()} F1-PUNKTE · ${row.event_name} · P${row.finish_position}`,
+     text: `+${Number(row.points_delta).toLocaleString()} F1-PUNKTE · ${row.event_name}${row.finish_position ? ` · P${row.finish_position}` : ''}`,
      createdAt: row.created_at
    }))
  ].sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt)).slice(0,6);
@@ -352,7 +352,24 @@ async function adminSearchPlayers(page = 0) {
    awardButton.className = 'btn red';
    awardButton.textContent = 'VERBUCHEN';
    awardButton.addEventListener('click', () => adminAwardRacePoints(profile.email, eventInput.value, positionSelect.value, award));
-   controls.append(eventInput, positionSelect, awardButton);
+   const placementRow = document.createElement('div');
+   placementRow.className = 'admin-inline-row';
+   placementRow.append(positionSelect, awardButton);
+   const customPointsInput = document.createElement('input');
+   customPointsInput.type = 'number';
+   customPointsInput.min = '1';
+   customPointsInput.step = '1';
+   customPointsInput.placeholder = 'F1-Punkte direkt eingeben';
+   customPointsInput.setAttribute('aria-label', `F1-Punkte für ${profile.email}`);
+   const customAwardButton = document.createElement('button');
+   customAwardButton.type = 'button';
+   customAwardButton.className = 'btn';
+   customAwardButton.textContent = 'PUNKTE GUTSCHREIBEN';
+   customAwardButton.addEventListener('click', () => adminAwardCustomPoints(profile.email, eventInput.value, customPointsInput.value, award));
+   const customPointsRow = document.createElement('div');
+   customPointsRow.className = 'admin-inline-row';
+   customPointsRow.append(customPointsInput, customAwardButton);
+   controls.append(eventInput, placementRow, customPointsRow);
    award.append(summary, controls);
    row.append(identity, award);
    output.append(row);
@@ -386,6 +403,28 @@ async function adminAwardRacePoints(emailOverride, eventOverride, positionOverri
    return;
  }
  toast(`${data.f1_points_awarded.toLocaleString()} F1-Punkte an ${email} vergeben.`);
+ if (inlineAward) inlineAward.open = false;
+ await adminSearchPlayers(adminPlayersPage);
+}
+
+async function adminAwardCustomPoints(email, eventName, pointsValue, inlineAward) {
+ if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
+ const pointsToAward = Number(pointsValue);
+ const awardEvent = String(eventName ?? '').trim();
+ if (!Number.isSafeInteger(pointsToAward) || pointsToAward < 1) return toast('Mindestens einen F1-Punkt als ganze Zahl eingeben.');
+ if (!awardEvent) return toast('Rennen oder Event eingeben.');
+
+ const { data, error } = await supabaseClient.rpc('admin_award_custom_points', {
+   p_email: email,
+   p_points: pointsToAward,
+   p_event_name: awardEvent
+ });
+ if (error) return displayBackendError(error);
+ if (data.already_awarded) {
+   toast(`Punkte für ${email} bei "${awardEvent}" wurden bereits vergeben.`);
+ } else {
+   toast(`${Number(data.points_awarded).toLocaleString()} F1-Punkte an ${email} vergeben.`);
+ }
  if (inlineAward) inlineAward.open = false;
  await adminSearchPlayers(adminPlayersPage);
 }

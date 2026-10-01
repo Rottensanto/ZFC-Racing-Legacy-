@@ -93,7 +93,7 @@ where lower(email) = lower('s.barbosa.galaxy@gmail.com')
 on conflict (user_id) do update set role = 'admin';
 ```
 
-Die Adminrolle lässt sich nicht über die Website vergeben. Zusätzlich akzeptiert die Datenbank Adminrechte ausschließlich für `s.barbosa.galaxy@gmail.com`; andere Rollen-Einträge können keine Punkte vergeben. Das Schema erstellt für jedes neue Auth-Konto automatisch ein Profil und schützt Kontodaten mit Row Level Security.
+Die Adminrolle lässt sich nicht über die Website vergeben. Zusätzlich akzeptiert die Datenbank Adminrechte ausschließlich für `s.barbosa.galaxy@gmail.com`; andere Rollen-Einträge können keine Punkte vergeben. Im Konto kann die offizielle Platzierung oder eine frei eingegebene ganze F1-Punktezahl gebucht werden. Für die freie Vergabe Event/Rennen angeben; dieselbe Konto/Event-Kombination kann nur einmal gutgeschrieben werden. Das Schema erstellt für jedes neue Auth-Konto automatisch ein Profil und schützt Kontodaten mit Row Level Security.
 
 ## Spielregeln
 

@@ -27,7 +27,8 @@
 .admin-user-identity span{color:#aeb4be;overflow-wrap:anywhere;text-align:right}
 .admin-user-identity small{grid-column:1/-1;color:#858a94}
 .admin-inline-award summary{width:max-content;max-width:100%;padding:7px 0;color:#ef5962;font-weight:900;cursor:pointer}
-.admin-inline-controls{display:grid;grid-template-columns:minmax(0,1fr) 180px auto;gap:8px;align-items:center}
+.admin-inline-controls{display:grid;gap:8px;align-items:center}
+.admin-inline-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
 .admin-inline-controls input,.admin-inline-controls select{min-width:0;width:100%;padding:10px;background:#090a0c;border:1px solid #30333a;border-radius:6px;color:#fff}
 .admin-inline-controls .btn{padding:10px 12px}
 .admin-pagination{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
@@ -49,4 +50,4 @@
 .owned-card-actions button{width:100%;min-width:0;min-height:34px;padding:7px 6px;border:1px solid #ff3046;background:#270b10;color:#fff;font-size:10px;font-weight:900;line-height:1.2}
 .owned-card-actions .upgrade-card{border-color:#e6bd4a;background:#241c0d;color:#fff0bd}
 .owned-card .sell-card:hover{background:#b80c20}
-@media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.admin-inline-controls{grid-template-columns:1fr}.admin-user-identity{grid-template-columns:1fr}.admin-user-identity span{text-align:left}}
+@media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.admin-inline-row{grid-template-columns:1fr}.admin-user-identity{grid-template-columns:1fr}.admin-user-identity span{text-align:left}}
