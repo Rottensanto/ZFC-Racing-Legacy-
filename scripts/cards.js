@@ -13,7 +13,7 @@ function cardHTML(c, showSale = false){
  const actionMarkup=showSale?`<div class="owned-card-actions">${level<10?`<button class="upgrade-card" onclick="event.stopPropagation();upgradeCard('${c.instanceId}')">LEVEL UP · ${(level*300).toLocaleString()} C</button>`:''}<button class="sell-card" onclick="event.stopPropagation();sellCard('${c.instanceId}')">VERKAUFEN · ${saleEstimate.toLocaleString()} C</button></div>`:'';
  const photoMarkup=c.type==='TEAM'
 	 ?`<div class="photo team-photo"><img src="${c.img}" alt="${c.name} Logo" loading="lazy"></div>`
-	 :`<div class="photo${c.type==='CAR'?'':' driver-photo'}" style="background-image:url('${c.img}')"></div>`;
+	 :`<div class="photo${c.type==='DRIVER'?' driver-photo':c.type==='CAR'?'':' legacy-driver-photo'}" style="background-image:url('${c.img}')"></div>`;
  const cardMarkup=`<div class="card ${c.rarity} tier-${tier}${showSale?' owned-card':''}" data-tier="${tier}"><span class="card-red-neon" aria-hidden="true"></span>${photoMarkup}<div class="rating">${c.rating}</div><div class="rarity">${c.type}</div>${levelMarkup}<div class="info"><div class="name">${c.short}</div><div class="year">${c.year}</div></div><div class="type">${tier.toUpperCase()}</div></div>`;
  return showSale?`<div class="owned-card-item">${cardMarkup}${actionMarkup}</div>`:cardMarkup;
 }

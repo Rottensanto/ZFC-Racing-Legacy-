@@ -99,7 +99,9 @@ set search_path = public, pg_temp
 as $$
   select exists (
     select 1 from public.user_roles
-    where user_id = auth.uid() and role = 'admin'
+    where user_id = auth.uid()
+      and role = 'admin'
+      and lower(auth.jwt()->>'email') = lower('s.barbosa.galaxy@gmail.com')
   );
 $$;
 
@@ -399,8 +401,6 @@ as $$
 declare
   v_user_id uuid := auth.uid();
   v_balance_points bigint;
-  v_today_coins bigint;
-  v_coin_limit constant bigint := 500;
   v_coins bigint;
   v_points_spent bigint;
   v_new_coins bigint;
@@ -409,15 +409,9 @@ begin
   if p_points is null or p_points < 10 then raise exception 'Mindestens 10 F1-Punkte umtauschen.'; end if;
 
   select f1_points into v_balance_points from public.profiles where id = v_user_id for update;
-  select coalesce(sum(coins_delta), 0) into v_today_coins
-    from public.coin_ledger
-    where user_id = v_user_id
-      and kind = 'point_conversion'
-      and created_at >= (date_trunc('day', now() at time zone 'UTC') at time zone 'UTC');
-
-  v_coins := least(p_points / 10, v_balance_points / 10, greatest(0, v_coin_limit - v_today_coins));
-  if v_coins < 1 then raise exception 'Tageslimit erreicht oder nicht genügend F1-Punkte.'; end if;
-  v_points_spent := v_coins * 10;
+  v_coins := least(p_points / 10, v_balance_points / 10) * 90;
+  if v_coins < 90 then raise exception 'Nicht genügend F1-Punkte zum Umtauschen.'; end if;
+  v_points_spent := (v_coins / 90) * 10;
 
   update public.profiles as p
     set f1_points = p.f1_points - v_points_spent,
@@ -428,7 +422,7 @@ begin
   insert into public.coin_ledger(user_id, coins_delta, kind, detail)
     values (v_user_id, v_coins, 'point_conversion', jsonb_build_object('points_spent', v_points_spent));
 
-  return jsonb_build_object('points_spent', v_points_spent, 'coins_awarded', v_coins, 'balance', v_new_coins, 'daily_limit', v_coin_limit);
+  return jsonb_build_object('points_spent', v_points_spent, 'coins_awarded', v_coins, 'balance', v_new_coins);
 end;
 $$;
 
@@ -441,6 +435,7 @@ as $$
 declare
   v_admin_id uuid := auth.uid();
   v_user_id uuid;
+  v_ledger_id uuid;
   v_base_points integer;
   v_awarded bigint;
   v_total bigint;
@@ -453,11 +448,17 @@ begin
 
   select id into v_user_id from public.profiles where lower(email) = lower(trim(p_email));
   if v_user_id is null then raise exception 'Kein Konto mit dieser E-Mail gefunden.'; end if;
-  update public.profiles as p set f1_points = p.f1_points + v_awarded where p.id = v_user_id returning p.f1_points into v_total;
   insert into public.point_ledger(user_id, points_delta, event_name, finish_position, admin_id)
-    values (v_user_id, v_awarded, trim(p_event_name), p_position, v_admin_id);
+    values (v_user_id, v_awarded, trim(p_event_name), p_position, v_admin_id)
+    on conflict do nothing
+    returning id into v_ledger_id;
+  if v_ledger_id is null then
+    select f1_points into v_total from public.profiles where id = v_user_id;
+    return jsonb_build_object('email', lower(trim(p_email)), 'position', p_position, 'f1_points_awarded', 0, 'new_balance', v_total, 'already_awarded', true);
+  end if;
+  update public.profiles as p set f1_points = p.f1_points + v_awarded where p.id = v_user_id returning p.f1_points into v_total;
 
-  return jsonb_build_object('email', lower(trim(p_email)), 'position', p_position, 'f1_points_awarded', v_awarded, 'new_balance', v_total);
+  return jsonb_build_object('email', lower(trim(p_email)), 'position', p_position, 'f1_points_awarded', v_awarded, 'new_balance', v_total, 'already_awarded', false);
 end;
 $$;
 

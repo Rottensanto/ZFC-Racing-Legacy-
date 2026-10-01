@@ -11,16 +11,28 @@ function toast(msg){
  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);
 }
 function updateConvert(){
- const pct=+document.getElementById('convertRange').value;
- const used=Math.floor(Math.floor(points*pct/100)/10)*10, receive=Math.min(used/10,500);
+ const range=document.getElementById('convertRange');
+ const maximum=Math.floor(Math.max(0,Number(points)||0)/10)*10;
+ if(range.dataset.maximum!==String(maximum)){
+	 range.max=String(maximum);
+	 range.value=String(maximum);
+	 range.dataset.maximum=String(maximum);
+ }
+ const used=Math.min(Math.floor(Number(range.value)/10)*10,maximum);
+ const receive=(used/10)*90;
+ range.value=String(used);
+ document.getElementById('availablePoints').textContent=Number(points||0).toLocaleString();
  document.getElementById('usedPoints').textContent=used.toLocaleString();
  document.getElementById('receiveCoins').textContent=receive.toLocaleString()+' C';
- document.getElementById('convertValue').textContent=pct+'% · MAX. 500 C/TAG';
+}
+function setConvertMaximum(){
+ const range=document.getElementById('convertRange');
+ range.value=range.max;
+ updateConvert();
 }
 async function convertPoints(){
  if(!currentUser||!backendReady())return showPage('login');
- const pct=+document.getElementById('convertRange').value;
- const used=Math.floor(Math.floor(points*pct/100)/10)*10;
+ const used=Number(document.getElementById('convertRange').value);
  if(used<=0){toast('Wähle zuerst einen Umwandlungswert.');return}
  const {data,error}=await supabaseClient.rpc('convert_f1_points',{p_points:used});
  if(error)return displayBackendError(error);

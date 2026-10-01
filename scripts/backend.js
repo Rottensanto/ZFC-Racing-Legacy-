@@ -318,6 +318,11 @@ async function adminAwardRacePoints() {
    p_event_name: eventName
  });
  if (error) return displayBackendError(error);
+ if (data.already_awarded) {
+   toast(`Punkte für ${email} bei "${eventName}" wurden bereits vergeben.`);
+   await adminSearchPlayers();
+   return;
+ }
  toast(`${data.f1_points_awarded.toLocaleString()} F1-Punkte an ${email} vergeben.`);
  await adminSearchPlayers();
 }
