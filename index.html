@@ -111,11 +111,12 @@
 
 <section id="login" class="page">
   <div class="auth-wrap"><div class="auth">
-    <div class="logo">F<span>1</span></div><h2>F1 DRIVER ACCOUNT</h2><div class="sub">Melde dich mit deiner E-Mail-Adresse an oder erstelle ein Konto.</div>
+    <div class="logo">F<span>1</span></div><h2>F1 DRIVER ACCOUNT</h2><div class="sub">Melde dich mit Discord oder E-Mail an oder erstelle ein Konto.</div>
     <div class="auth-mode" role="group" aria-label="Anmeldeart">
       <button class="btn red" id="authLoginMode" type="button" aria-pressed="true" onclick="setAuthMode('login')">ANMELDEN</button>
       <button class="btn" id="authSignupMode" type="button" aria-pressed="false" onclick="setAuthMode('signup')">KONTO ERSTELLEN</button>
     </div>
+    <div class="oauth-actions"><button class="btn discord-login" type="button" onclick="loginWithDiscord()">MIT DISCORD ANMELDEN</button><div class="auth-divider">ODER MIT E-MAIL</div></div>
     <form id="authForm" onsubmit="submitAuthForm(event)">
       <div class="field hidden" id="signupNameField"><label for="signupName">Fahrername (optional)</label><input id="signupName" autocomplete="name" placeholder="Dein Name in der Liga"></div>
       <div class="field"><label for="loginUser">E-Mail</label><input id="loginUser" type="email" autocomplete="email" placeholder="name@example.com" required></div>

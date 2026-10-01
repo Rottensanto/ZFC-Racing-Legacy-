@@ -212,6 +212,16 @@ function submitAuthForm(event) {
  else loginWithPassword();
 }
 
+async function loginWithDiscord() {
+ if (!requireBackend()) return;
+ const redirectTo = window.APP_CONFIG.authRedirectUrl || `${window.location.origin}${window.location.pathname}`;
+ const { error } = await supabaseClient.auth.signInWithOAuth({
+   provider: 'discord',
+   options: { redirectTo, scopes: 'identify email' }
+ });
+ if (error) displayBackendError(error);
+}
+
 async function loginWithPassword() {
  if (!requireBackend()) return;
  const email = document.getElementById('loginUser').value.trim();

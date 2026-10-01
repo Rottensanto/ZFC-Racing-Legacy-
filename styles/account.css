@@ -2,6 +2,11 @@
 .account-status.error{color:#ff817b}
 .auth-mode{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:18px 0 14px}
 .auth-mode .btn{width:100%}
+.oauth-actions{display:grid;gap:14px;margin-bottom:18px}
+.auth .discord-login{margin-top:0;background:#5865f2;border-color:#5865f2;color:#fff}
+.auth .discord-login:hover{background:#4752c4;border-color:#4752c4}
+.auth-divider{display:flex;align-items:center;gap:12px;color:#7e838d;font-size:10px;font-weight:800}
+.auth-divider:before,.auth-divider:after{content:"";height:1px;background:#30333a;flex:1}
 .auth #authForm{display:grid;gap:12px}
 .auth #authForm .field{margin:0}
 .auth-actions{display:grid;gap:10px}
