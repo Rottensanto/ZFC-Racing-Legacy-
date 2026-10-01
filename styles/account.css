@@ -17,7 +17,21 @@
 .account-summary .mini{min-width:0}
 .admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .admin-user-list{display:grid;gap:8px;margin-top:14px}
-.admin-user-row{padding:11px 12px;background:#14161a;border:1px solid #2d3036;color:#d7d9df;font-size:11px;overflow-wrap:anywhere}
+.admin-players-panel{min-width:0}
+.admin-players-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.admin-players-head h3{margin-bottom:12px}
+#adminPageStatus{color:#9297a1;font-size:11px;text-align:right}
+.admin-user-row{display:grid;gap:10px;padding:12px;background:#14161a;border:1px solid #2d3036;color:#d7d9df;font-size:11px;overflow-wrap:anywhere}
+.admin-user-identity{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:baseline}
+.admin-user-identity strong{min-width:0;overflow-wrap:anywhere}
+.admin-user-identity span{color:#aeb4be;overflow-wrap:anywhere;text-align:right}
+.admin-user-identity small{grid-column:1/-1;color:#858a94}
+.admin-inline-award summary{width:max-content;max-width:100%;padding:7px 0;color:#ef5962;font-weight:900;cursor:pointer}
+.admin-inline-controls{display:grid;grid-template-columns:minmax(0,1fr) 180px auto;gap:8px;align-items:center}
+.admin-inline-controls input,.admin-inline-controls select{min-width:0;width:100%;padding:10px;background:#090a0c;border:1px solid #30333a;border-radius:6px;color:#fff}
+.admin-inline-controls .btn{padding:10px 12px}
+.admin-pagination{display:flex;justify-content:space-between;gap:10px;margin-top:14px}
+.admin-pagination .btn:disabled{opacity:.4;cursor:not-allowed}
 .account-balances{display:flex;gap:12px;flex-wrap:wrap;color:#aeb4be;font-size:11px}
 .account-password{margin:12px 0 20px;color:#c2c5cb;font-size:11px}
 .account-password summary{width:max-content;max-width:100%;padding:8px 0;cursor:pointer;color:#ef5962}
@@ -35,4 +49,4 @@
 .owned-card-actions button{width:100%;min-width:0;min-height:34px;padding:7px 6px;border:1px solid #ff3046;background:#270b10;color:#fff;font-size:10px;font-weight:900;line-height:1.2}
 .owned-card-actions .upgrade-card{border-color:#e6bd4a;background:#241c0d;color:#fff0bd}
 .owned-card .sell-card:hover{background:#b80c20}
-@media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}}
+@media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.admin-inline-controls{grid-template-columns:1fr}.admin-user-identity{grid-template-columns:1fr}.admin-user-identity span{text-align:left}}

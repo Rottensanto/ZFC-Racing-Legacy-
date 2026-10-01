@@ -1,5 +1,7 @@
 let supabaseClient = null;
 let authMode = 'login';
+let adminPlayersPage = 0;
+const ADMIN_PLAYER_PAGE_SIZE = 30;
 
 function setAuthMessage(message, isError = false) {
  const target = document.getElementById('authMessage');
@@ -291,27 +293,86 @@ async function refreshAccountData() {
  await applyAuthSession({ user: currentUser });
 }
 
-async function adminSearchPlayers() {
- if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
+async function adminSearchPlayers(page = 0) {
+ if (!backendReady() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
+ page = Math.max(0, Number(page) || 0);
  const query = document.getElementById('adminSearchEmail').value.trim();
- const result = await supabaseClient.from('profiles').select('email,display_name,coins,f1_points').ilike('email', `%${query}%`).order('display_name').limit(25);
+ const start = page * ADMIN_PLAYER_PAGE_SIZE;
+ let request = supabaseClient.from('profiles')
+   .select('email,display_name,coins,f1_points', { count: 'exact' })
+   .order('display_name', { ascending: true })
+   .range(start, start + ADMIN_PLAYER_PAGE_SIZE - 1);
+ if (query) request = request.ilike('email', `%${query}%`);
+ const result = await request;
  if (result.error) return displayBackendError(result.error);
+ adminPlayersPage = page;
+ const total = result.count || 0;
+ const status = document.getElementById('adminPageStatus');
+ if (status) status.textContent = total
+   ? `Konten ${start + 1}–${Math.min(start + result.data.length, total)} von ${total}`
+   : 'Keine Konten gefunden.';
+ document.getElementById('adminPreviousPage').disabled = page === 0;
+ document.getElementById('adminNextPage').disabled = start + ADMIN_PLAYER_PAGE_SIZE >= total;
  const output = document.getElementById('adminUsers');
  output.replaceChildren();
  for (const profile of result.data) {
    const row = document.createElement('div');
    row.className = 'admin-user-row';
-   row.textContent = `${profile.display_name} · ${profile.email} · ${profile.f1_points.toLocaleString()} F1 P · ${profile.coins.toLocaleString()} C`;
+   const identity = document.createElement('div');
+   identity.className = 'admin-user-identity';
+   const name = document.createElement('strong');
+   name.textContent = profile.display_name || 'F1 Driver';
+   const email = document.createElement('span');
+   email.textContent = profile.email;
+   const balances = document.createElement('small');
+   balances.textContent = `${Number(profile.f1_points).toLocaleString()} F1-Punkte · ${Number(profile.coins).toLocaleString()} Coins`;
+   identity.append(name, email, balances);
+
+   const award = document.createElement('details');
+   award.className = 'admin-inline-award';
+   const summary = document.createElement('summary');
+   summary.textContent = 'PUNKTE VERGEBEN';
+   const controls = document.createElement('div');
+   controls.className = 'admin-inline-controls';
+   const eventInput = document.createElement('input');
+   eventInput.type = 'text';
+   eventInput.placeholder = 'Rennen / Event';
+   eventInput.setAttribute('aria-label', `Rennen oder Event für ${profile.email}`);
+   const positionSelect = document.createElement('select');
+   positionSelect.setAttribute('aria-label', `Platzierung für ${profile.email}`);
+   const racePoints = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
+   racePoints.forEach((points, index) => {
+     const option = document.createElement('option');
+     option.value = String(index + 1);
+     option.textContent = `${index + 1}. Platz · ${points} Punkte`;
+     positionSelect.append(option);
+   });
+   const awardButton = document.createElement('button');
+   awardButton.type = 'button';
+   awardButton.className = 'btn red';
+   awardButton.textContent = 'VERBUCHEN';
+   awardButton.addEventListener('click', () => adminAwardRacePoints(profile.email, eventInput.value, positionSelect.value, award));
+   controls.append(eventInput, positionSelect, awardButton);
+   award.append(summary, controls);
+   row.append(identity, award);
    output.append(row);
  }
 }
 
-async function adminAwardRacePoints() {
+function adminPreviousPlayersPage() {
+ return adminSearchPlayers(adminPlayersPage - 1);
+}
+
+function adminNextPlayersPage() {
+ return adminSearchPlayers(adminPlayersPage + 1);
+}
+
+async function adminAwardRacePoints(emailOverride, eventOverride, positionOverride, inlineAward) {
  if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
- const email = document.getElementById('awardEmail').value.trim();
- const position = Number(document.getElementById('awardPosition').value);
- const eventName = document.getElementById('awardEvent').value.trim();
- if (!email || !eventName) return setAuthMessage('Spieler-E-Mail und Event eingeben.', true);
+ const email = String(emailOverride ?? document.getElementById('awardEmail').value).trim();
+ const position = Number(positionOverride ?? document.getElementById('awardPosition').value);
+ const eventName = String(eventOverride ?? document.getElementById('awardEvent').value).trim();
+ if (!email || !eventName) return toast('Spieler-E-Mail und Rennen/Event eingeben.');
  const { data, error } = await supabaseClient.rpc('admin_award_race_points', {
    p_email: email,
    p_position: position,
@@ -320,9 +381,11 @@ async function adminAwardRacePoints() {
  if (error) return displayBackendError(error);
  if (data.already_awarded) {
    toast(`Punkte für ${email} bei "${eventName}" wurden bereits vergeben.`);
-   await adminSearchPlayers();
+   if (inlineAward) inlineAward.open = false;
+   await adminSearchPlayers(adminPlayersPage);
    return;
  }
  toast(`${data.f1_points_awarded.toLocaleString()} F1-Punkte an ${email} vergeben.`);
- await adminSearchPlayers();
+ if (inlineAward) inlineAward.open = false;
+ await adminSearchPlayers(adminPlayersPage);
 }

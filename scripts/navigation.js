@@ -4,6 +4,7 @@ function showPage(id){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
  const el=document.getElementById(id); if(el) el.classList.add('active');
  document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',a.dataset.nav===id));
+ if(id==='admin'&&isAdmin)adminSearchPlayers(0);
  window.scrollTo({top:0,behavior:'smooth'});
  document.getElementById('loginTop').textContent=currentUser?'PROFILE':'LOGIN';
 }
