@@ -12,8 +12,12 @@ create table if not exists public.profiles (
   display_name text not null default 'F1 Driver',
   coins bigint not null default 0 check (coins >= 0),
   f1_points bigint not null default 0 check (f1_points >= 0),
+  welcome_bonus_claimed_at timestamptz default now(),
   created_at timestamptz not null default now()
 );
+
+alter table public.profiles
+  add column if not exists welcome_bonus_claimed_at timestamptz default now();
 
 create table if not exists public.cards (
   id text primary key,
@@ -55,10 +59,15 @@ create table if not exists public.coin_ledger (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
   coins_delta bigint not null,
-  kind text not null check (kind in ('pack_purchase', 'card_sale', 'point_conversion', 'card_upgrade')),
+  kind text not null check (kind in ('pack_purchase', 'card_sale', 'point_conversion', 'card_upgrade', 'welcome_bonus')),
   detail jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now()
 );
+
+alter table public.coin_ledger drop constraint if exists coin_ledger_kind_check;
+alter table public.coin_ledger
+  add constraint coin_ledger_kind_check
+  check (kind in ('pack_purchase', 'card_sale', 'point_conversion', 'card_upgrade', 'welcome_bonus'));
 
 create index if not exists coin_ledger_owner_day_idx on public.coin_ledger(user_id, kind, created_at desc);
 
@@ -88,6 +97,33 @@ as $$
   );
 $$;
 
+create or replace function public.claim_welcome_bonus()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_balance bigint;
+  v_bonus constant bigint := 3000;
+begin
+  if v_user_id is null then raise exception 'Bitte zuerst anmelden.'; end if;
+
+  update public.profiles
+    set coins = coins + v_bonus,
+        welcome_bonus_claimed_at = now()
+    where id = v_user_id and welcome_bonus_claimed_at is null
+    returning coins into v_balance;
+  if not found then raise exception 'Das Willkommensgeschenk wurde bereits beansprucht.'; end if;
+
+  insert into public.coin_ledger(user_id, coins_delta, kind, detail)
+    values (v_user_id, v_bonus, 'welcome_bonus', jsonb_build_object('source', 'new_account'));
+
+  return jsonb_build_object('coins_awarded', v_bonus, 'balance', v_balance);
+end;
+$$;
+
 revoke all on function public.is_admin() from public, anon;
 grant execute on function public.is_admin() to authenticated;
 
@@ -98,11 +134,12 @@ security definer
 set search_path = public, pg_temp
 as $$
 begin
-  insert into public.profiles (id, email, display_name)
+  insert into public.profiles (id, email, display_name, welcome_bonus_claimed_at)
   values (
     new.id,
     lower(trim(new.email)),
-    coalesce(nullif(trim(new.raw_user_meta_data->>'full_name'), ''), split_part(lower(trim(new.email)), '@', 1), 'F1 Driver')
+    coalesce(nullif(trim(new.raw_user_meta_data->>'full_name'), ''), split_part(lower(trim(new.email)), '@', 1), 'F1 Driver'),
+    null
   )
   on conflict (id) do update set email = excluded.email;
   return new;
@@ -417,8 +454,10 @@ revoke all on function public.sell_user_card(uuid) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
 revoke all on function public.convert_f1_points(bigint) from public, anon;
 revoke all on function public.admin_award_race_points(text, smallint, text) from public, anon;
+revoke all on function public.claim_welcome_bonus() from public, anon;
 grant execute on function public.purchase_pack(text) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
 grant execute on function public.upgrade_user_card(uuid) to authenticated;
 grant execute on function public.convert_f1_points(bigint) to authenticated;
 grant execute on function public.admin_award_race_points(text, smallint, text) to authenticated;
+grant execute on function public.claim_welcome_bonus() to authenticated;

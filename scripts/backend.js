@@ -96,6 +96,7 @@ async function applyAuthSession(session) {
 
  updateAccountUI();
  renderRecentActivity(coinActivity.data || [], pointActivity.data || []);
+ if (accountProfile?.welcome_bonus_claimed_at === null) showWelcomeBonus();
  if (currentUser) setAuthMessage(`Angemeldet als ${currentUser.email}.`);
  render();
  updateConvert();
@@ -107,7 +108,8 @@ function renderRecentActivity(coinRows, pointRows) {
  const events = [
    ...coinRows.map(row => {
      const detail = row.detail || {};
-     const text = row.kind === 'pack_purchase' ? `${String(detail.tier || 'F1').toUpperCase()} PACK GEÖFFNET`
+     const text = row.kind === 'welcome_bonus' ? `+${Number(row.coins_delta).toLocaleString()} COINS · ZFC WILLKOMMENSGESCHENK`
+       : row.kind === 'pack_purchase' ? `${String(detail.tier || 'F1').toUpperCase()} PACK GEÖFFNET`
        : row.kind === 'card_sale' ? `${detail.card || 'Karte'} · LEVEL ${detail.level || 1} VERKAUFT`
        : row.kind === 'card_upgrade' ? `KARTE AUF LEVEL ${detail.new_level || ''} VERBESSERT`
        : `+${Number(row.coins_delta).toLocaleString()} COINS UMGETAUSCHT`;
@@ -159,6 +161,36 @@ function updateAccountUI() {
  const collectionValue = document.getElementById('collectionValue');
  if (collectionValue) collectionValue.textContent = userCards.length.toLocaleString();
  setText('dashCardCount', userCards.length.toLocaleString());
+}
+
+function showWelcomeBonus() {
+ const modal = document.getElementById('welcomeBonusModal');
+ const claimButton = document.getElementById('welcomeBonusClaim');
+ if (!modal || modal.classList.contains('open')) return;
+ claimButton.disabled = false;
+ claimButton.textContent = 'GESCHENK CLAIMEN';
+ modal.classList.add('open');
+ claimButton.focus();
+}
+
+async function claimWelcomeBonus() {
+ if (!requireBackend() || !currentUser) return;
+ const modal = document.getElementById('welcomeBonusModal');
+ const claimButton = document.getElementById('welcomeBonusClaim');
+ claimButton.disabled = true;
+ claimButton.textContent = 'WIRD VERBUCHT ...';
+
+ const { data, error } = await supabaseClient.rpc('claim_welcome_bonus');
+ if (error) {
+   displayBackendError(error);
+   claimButton.disabled = false;
+   claimButton.textContent = 'ERNEUT VERSUCHEN';
+   return;
+ }
+
+ await refreshAccountData();
+ modal.classList.remove('open');
+ toast(`${Number(data.coins_awarded).toLocaleString()} Coins wurden deinem Konto gutgeschrieben.`);
 }
 
 function setAuthMode(mode) {

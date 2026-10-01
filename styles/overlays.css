@@ -1,3 +1,42 @@
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:100;display:none;place-items:center;padding:20px}.modal.open{display:grid}.modal-box{width:min(720px,100%);background:#101216;border:1px solid #363a42;border-radius:18px;padding:30px;box-shadow:var(--shadow)}.modal-head{display:flex;justify-content:space-between;align-items:center}.close{background:none;border:0;color:#999;font-size:25px}.purchase{display:grid;grid-template-columns:260px 1fr;gap:30px;align-items:center}.purchase .pack-art{height:330px}.purchase-info h2{font-size:34px;margin:0}.purchase-info p{color:#999;line-height:1.6}.purchase-info .cost{font-size:27px;font-weight:1000;margin:20px 0}.success{padding:15px;background:rgba(54,211,139,.1);border:1px solid rgba(54,211,139,.35);color:#68e6aa;border-radius:8px;font-size:12px;margin-top:15px}
 
 .toast{position:fixed;right:22px;bottom:22px;z-index:200;background:#15181d;border:1px solid #3b3e45;border-left:3px solid var(--red);padding:14px 18px;border-radius:9px;box-shadow:var(--shadow);font-size:12px;display:none}.toast.show{display:block;animation:toast .25s}.footer{border-top:1px solid var(--line);padding:28px 0;color:#62666f;font-size:10px;text-align:center}
+
+.zfc-opening{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;overflow:hidden;background:#07080a;opacity:0;visibility:hidden;transition:opacity .55s ease,visibility .55s ease}
+.zfc-opening.is-active{opacity:1;visibility:visible}
+.zfc-opening.is-closing{opacity:0;visibility:hidden;pointer-events:none}
+.zfc-opening:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 3px,rgba(255,255,255,.018) 4px,transparent 5px);pointer-events:none}
+.zfc-opening-skip{position:absolute;top:24px;right:28px;z-index:2;padding:10px 12px;border:1px solid rgba(255,255,255,.28);background:rgba(7,8,10,.7);color:#e4e4e4;font-size:10px;font-weight:900;letter-spacing:1px}
+.zfc-opening-skip:hover,.zfc-opening-skip:focus-visible{border-color:#ff087c;color:#fff;outline:2px solid #ff087c;outline-offset:3px}
+.zfc-opening-stage{position:relative;z-index:1;width:min(820px,92vw);display:flex;flex-direction:column;align-items:center;text-align:center}
+.zfc-opening-lights{display:flex;gap:13px;margin-bottom:35px;padding:10px 17px;border:1px solid #303138;background:#101115;box-shadow:0 8px 35px rgba(0,0,0,.6)}
+.zfc-opening-lights span{width:13px;height:13px;border-radius:50%;background:#ff204e;box-shadow:0 0 14px rgba(255,32,78,.75);animation:zfc-start-light .75s ease-in-out both}
+.zfc-opening-lights span:nth-child(2){animation-delay:.12s}.zfc-opening-lights span:nth-child(3){animation-delay:.24s}.zfc-opening-lights span:nth-child(4){animation-delay:.36s}.zfc-opening-lights span:nth-child(5){animation-delay:.48s}
+.zfc-opening-mark{position:relative;width:min(620px,82vw);filter:drop-shadow(0 0 28px rgba(255,8,124,.28))}
+.zfc-opening-mark img{display:block;width:100%;height:auto;opacity:0;transform:translateX(-90vw) skewX(16deg) scale(.86);animation:zfc-logo-arrive 1.25s cubic-bezier(.16,.8,.24,1) .2s forwards}
+.zfc-opening-streak{position:absolute;top:52%;right:70%;width:70vw;height:2px;background:linear-gradient(90deg,transparent,#fff 40%,#ff087c);filter:drop-shadow(0 0 8px #ff087c);opacity:0;animation:zfc-speed-streak .8s ease-out .15s both}
+.zfc-opening-stage h1{margin:34px 0 8px;color:#fff;font-size:42px;font-weight:1000;line-height:1.05;opacity:0;transform:translateY(12px);animation:zfc-title-arrive .55s ease-out 1.15s forwards}
+.zfc-opening-stage p{margin:0;color:#ff4a9e;font-size:11px;font-weight:900;letter-spacing:3px;opacity:0;animation:zfc-title-arrive .45s ease-out 1.5s forwards}
+.zfc-opening-road{position:absolute;left:-8%;right:-8%;top:calc(50% + 105px);height:110px;border-top:1px solid rgba(255,8,124,.35);transform:perspective(180px) rotateX(34deg);background:repeating-linear-gradient(90deg,transparent 0 54px,rgba(255,255,255,.12) 55px 57px,transparent 58px 110px);mask-image:linear-gradient(90deg,transparent,#000 20%,#000 80%,transparent);opacity:0;animation:zfc-road-arrive 1.5s ease-out .45s forwards}
+@keyframes zfc-start-light{0%{opacity:.18;box-shadow:none}55%,100%{opacity:1;box-shadow:0 0 14px rgba(255,32,78,.75)}}
+@keyframes zfc-logo-arrive{0%{opacity:0;transform:translateX(-90vw) skewX(16deg) scale(.86)}72%{opacity:1;transform:translateX(3vw) skewX(-3deg) scale(1.02)}100%{opacity:1;transform:translateX(0) skewX(0) scale(1)}}
+@keyframes zfc-speed-streak{0%{opacity:0;transform:translateX(-30vw)}25%{opacity:1}100%{opacity:0;transform:translateX(110vw)}}
+@keyframes zfc-title-arrive{to{opacity:1;transform:translateY(0)}}
+@keyframes zfc-road-arrive{to{opacity:.55}}
+@media(max-width:600px){.zfc-opening-skip{top:14px;right:14px}.zfc-opening-lights{margin-bottom:28px}.zfc-opening-lights span{width:10px;height:10px}.zfc-opening-stage h1{margin-top:26px;font-size:27px}.zfc-opening-road{top:calc(50% + 68px)}}
+@media(prefers-reduced-motion:reduce){.zfc-opening,.zfc-opening *{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}}
+
+.welcome-bonus-modal{z-index:180}
+.welcome-bonus-box{width:min(440px,100%);padding:34px 30px;text-align:center;border-color:rgba(239,89,98,.55);animation:welcome-bonus-arrive .55s cubic-bezier(.2,.8,.2,1) both}
+.welcome-bonus-coin{width:76px;height:76px;margin:0 auto 18px;display:grid;place-items:center;border:3px solid #f4c94e;border-radius:50%;background:radial-gradient(circle at 35% 30%,#ffe9a0,#d79c23 62%,#80520d);box-shadow:0 0 32px rgba(244,201,78,.32);animation:welcome-coin-arrive .8s cubic-bezier(.2,.8,.2,1) both}
+.welcome-bonus-coin span{color:#432b08;font-size:32px;font-weight:1000;text-shadow:0 1px rgba(255,255,255,.45)}
+.welcome-bonus-label{margin:0 0 8px;color:#f07a80;font-size:10px;font-weight:900;letter-spacing:1.2px}
+.welcome-bonus-box h2{margin:0;color:#fff;font-size:26px;line-height:1.15}
+.welcome-bonus-copy{margin:12px 0 18px;color:#aeb4be;font-size:13px;line-height:1.5}
+.welcome-bonus-amount{margin:0 0 22px;color:#f4c94e;font-size:34px;font-weight:1000;line-height:1}
+.welcome-bonus-amount span{font-size:12px;color:#fff0bd}
+.welcome-bonus-box #welcomeBonusClaim{width:100%}
+@keyframes welcome-bonus-arrive{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes welcome-coin-arrive{from{opacity:0;transform:rotateY(100deg) scale(.65)}to{opacity:1;transform:rotateY(0) scale(1)}}
+@media(max-width:520px){.welcome-bonus-box{padding:28px 20px}.welcome-bonus-amount{font-size:30px}}
+@media(prefers-reduced-motion:reduce){.welcome-bonus-box,.welcome-bonus-coin{animation-duration:.01ms;animation-iteration-count:1}}

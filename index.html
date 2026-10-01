@@ -24,6 +24,17 @@
 </head>
 <body>
 
+<div class="zfc-opening" id="zfcOpening" role="dialog" aria-modal="true" aria-labelledby="zfcOpeningTitle">
+  <button class="zfc-opening-skip" id="zfcOpeningSkip" type="button" aria-label="Intro überspringen">ÜBERSPRINGEN</button>
+  <div class="zfc-opening-road" aria-hidden="true"></div>
+  <div class="zfc-opening-stage">
+    <div class="zfc-opening-lights" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="zfc-opening-mark"><span class="zfc-opening-streak" aria-hidden="true"></span><img src="zfc-logo.svg" alt="ZFC Racing" fetchpriority="high"></div>
+    <h1 id="zfcOpeningTitle">DIE JAGD BEGINNT</h1>
+    <p>RACING STARTS NOW</p>
+  </div>
+</div>
+
 <header class="topbar">
   <div class="container" style="display:flex;align-items:center;width:100%;gap:25px">
     <a class="logo" href="#" onclick="showPage('home')">F<span>1</span></a>
@@ -200,6 +211,16 @@
     <div class="purchase-info"><h2 id="modalName">GOLD PACK</h2><p>5 zufällige Karten. Die tatsächliche Verteilung wird erst beim Öffnen des Packs bestimmt. Karten können später in deiner Collection verwaltet oder auf dem Marketplace angeboten werden.</p><div class="cost"><span class="coin">C</span> <span id="modalCost">7,500</span></div><button class="btn gold big" style="width:100%" onclick="buyPack()">CONFIRM PURCHASE</button><div id="purchaseMessage"></div></div>
   </div>
 </div></div>
+<div class="modal welcome-bonus-modal" id="welcomeBonusModal" role="dialog" aria-modal="true" aria-labelledby="welcomeBonusTitle">
+  <div class="modal-box welcome-bonus-box">
+    <div class="welcome-bonus-coin" aria-hidden="true"><span>C</span></div>
+    <p class="welcome-bonus-label">GESCHENK VON ZFC</p>
+    <h2 id="welcomeBonusTitle">Willkommen in der Liga</h2>
+    <p class="welcome-bonus-copy">Dein Start in die Sammlung beginnt mit einem Geschenk.</p>
+    <p class="welcome-bonus-amount">+3.000 <span>COINS</span></p>
+    <button class="btn red big" id="welcomeBonusClaim" type="button" onclick="claimWelcomeBonus()">GESCHENK CLAIMEN</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 </body>

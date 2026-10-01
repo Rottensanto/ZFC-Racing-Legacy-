@@ -29,6 +29,8 @@ window.APP_CONFIG = Object.freeze({
 
 Es ist keine Google-Konfiguration erforderlich. Im Login-Bereich können Nutzer zwischen **Anmelden** und **Konto erstellen** wechseln. Der Fahrername ist optional. Der Link zum Zurücksetzen des Passworts verwendet dieselben Redirect-Adressen.
 
+Neue Konten erhalten einmalig ein **3.000-Coins-Willkommensgeschenk**. Der Bonus wird erst nach Klick auf **Geschenk claimen** gutgeschrieben. Bestehende Konten sind von diesem Registrierungsbonus ausgeschlossen. Nach einer Schemaänderung `schema.sql` erneut ausführen.
+
 ## 3. Admin-Zugang (optional)
 
 Erstelle zunächst ein Konto über die Website. Ersetze danach im SQL-Befehl die Beispieladresse durch die E-Mail-Adresse dieses Kontos und führe ihn im Supabase **SQL Editor** aus:
