@@ -101,8 +101,8 @@ begin
   insert into public.profiles (id, email, display_name)
   values (
     new.id,
-    lower(new.email),
-    coalesce(nullif(new.raw_user_meta_data->>'full_name', ''), split_part(new.email, '@', 1), 'F1 Driver')
+    lower(trim(new.email)),
+    coalesce(nullif(trim(new.raw_user_meta_data->>'full_name'), ''), split_part(lower(trim(new.email)), '@', 1), 'F1 Driver')
   )
   on conflict (id) do update set email = excluded.email;
   return new;
@@ -167,6 +167,49 @@ insert into public.cards (id, name, short_name, card_year, rating, rarity, card_
   ('F2004', 'Ferrari F2004', 'F2004', 2004, 94, 'icon', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/2004_Williams_FW26.jpg/960px-2004_Williams_FW26.jpg'),
   ('MP4-4', 'McLaren MP4/4', 'MP4/4', 1988, 96, 'legend', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Lotus_95T_Elio_De_Angelis_Detroit_Grand_Prix_1984a.jpeg/960px-Lotus_95T_Elio_De_Angelis_Detroit_Grand_Prix_1984a.jpeg'),
   ('RB19', 'Red Bull RB19', 'RB19', 2023, 92, 'icon', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/2018_Chinese_Grand_Prix_FP3_Charles_Leclerc_%2839897914770%29.jpg/960px-2018_Chinese_Grand_Prix_FP3_Charles_Leclerc_%2839897914770%29.jpg')
+on conflict (id) do update set
+  name = excluded.name,
+  short_name = excluded.short_name,
+  card_year = excluded.card_year,
+  rating = excluded.rating,
+  rarity = excluded.rarity,
+  card_type = excluded.card_type,
+  image_url = excluded.image_url;
+
+insert into public.cards (id, name, short_name, card_year, rating, rarity, card_type, image_url) values
+  ('DRV26-LANNOR', 'Lando Norris', 'NORRIS', 2026, 84, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/mclaren/lannor01/2026mclarenlannor01right.webp'),
+  ('DRV26-OSPIA', 'Oscar Piastri', 'PIASTRI', 2026, 84, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/mclaren/oscpia01/2026mclarenoscpia01right.webp'),
+  ('DRV26-GERUS', 'George Russell', 'RUSSELL', 2026, 84, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/mercedes/georus01/2026mercedesgeorus01right.webp'),
+  ('DRV26-ANDANT', 'Andrea Kimi Antonelli', 'ANTONELLI', 2026, 81, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/mercedes/andant01/2026mercedesandant01right.webp'),
+  ('DRV26-MAXVER', 'Max Verstappen', 'VERSTAPPEN', 2026, 84, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/redbullracing/maxver01/2026redbullracingmaxver01right.webp'),
+  ('DRV26-ISAHAD', 'Isack Hadjar', 'HADJAR', 2026, 79, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/redbullracing/isahad01/2026redbullracingisahad01right.webp'),
+  ('DRV26-CHALEC', 'Charles Leclerc', 'LECLERC', 2026, 84, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/ferrari/chalec01/2026ferrarichalec01right.webp'),
+  ('DRV26-LEWHAM', 'Lewis Hamilton', 'HAMILTON', 2026, 84, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/ferrari/lewham01/2026ferrarilewham01right.webp'),
+  ('DRV26-ALEALB', 'Alexander Albon', 'ALBON', 2026, 82, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/williams/alealb01/2026williamsalealb01right.webp'),
+  ('DRV26-CARSAI', 'Carlos Sainz', 'SAINZ', 2026, 82, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/williams/carsai01/2026williamscarsai01right.webp'),
+  ('DRV26-LIALAW', 'Liam Lawson', 'LAWSON', 2026, 79, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/racingbulls/lialaw01/2026racingbullslialaw01right.webp'),
+  ('DRV26-ARVLIN', 'Arvid Lindblad', 'LINDBLAD', 2026, 77, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/racingbulls/arvlin01/2026racingbullsarvlin01right.webp'),
+  ('DRV26-FERALO', 'Fernando Alonso', 'ALONSO', 2026, 83, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/astonmartin/feralo01/2026astonmartinferalo01right.webp'),
+  ('DRV26-LANSTR', 'Lance Stroll', 'STROLL', 2026, 79, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/astonmartin/lanstr01/2026astonmartinlanstr01right.webp'),
+  ('DRV26-ESTOCO', 'Esteban Ocon', 'OCON', 2026, 81, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/haasf1team/estoco01/2026haasf1teamestoco01right.webp'),
+  ('DRV26-OLIBEA', 'Oliver Bearman', 'BEARMAN', 2026, 81, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/haasf1team/olibea01/2026haasf1teamolibea01right.webp'),
+  ('DRV26-NICHUL', 'Nico Hülkenberg', 'HULKENBERG', 2026, 82, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/audi/nichul01/2026audinichul01right.webp'),
+  ('DRV26-GABBOR', 'Gabriel Bortoleto', 'BORTOLETO', 2026, 79, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/audi/gabbor01/2026audigabbor01right.webp'),
+  ('DRV26-PIEGAS', 'Pierre Gasly', 'GASLY', 2026, 81, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/alpine/piegas01/2026alpinepiegas01right.webp'),
+  ('DRV26-FRACOL', 'Franco Colapinto', 'COLAPINTO', 2026, 79, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/alpine/fracol01/2026alpinefracol01right.webp'),
+  ('DRV26-SERPER', 'Sergio Pérez', 'PEREZ', 2026, 81, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/cadillac/serper01/2026cadillacserper01right.webp'),
+  ('DRV26-VALBOT', 'Valtteri Bottas', 'BOTTAS', 2026, 82, 'rare', 'DRIVER', 'https://media.formula1.com/image/upload/c_lfill,w_440/q_auto/d_common:f1:2026:fallback:driver:2026fallbackdriverright.webp/v1740000001/common/f1/2026/cadillac/valbot01/2026cadillacvalbot01right.webp'),
+  ('TEAM26-MCLAREN', 'McLaren', 'MCLAREN', 2026, 84, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/mclaren/2026mclarenlogowhite.webp'),
+  ('TEAM26-MERCEDES', 'Mercedes', 'MERCEDES', 2026, 84, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/mercedes/2026mercedeslogowhite.webp'),
+  ('TEAM26-REDBULL', 'Red Bull Racing', 'RED BULL', 2026, 84, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/redbullracing/2026redbullracinglogowhite.webp'),
+  ('TEAM26-FERRARI', 'Scuderia Ferrari', 'FERRARI', 2026, 84, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/ferrari/2026ferrarilogowhite.webp'),
+  ('TEAM26-WILLIAMS', 'Williams', 'WILLIAMS', 2026, 82, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/williams/2026williamslogowhite.webp'),
+  ('TEAM26-RACINGBULLS', 'Racing Bulls', 'RACING BULLS', 2026, 79, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/racingbulls/2026racingbullslogowhite.webp'),
+  ('TEAM26-ASTONMARTIN', 'Aston Martin', 'ASTON MARTIN', 2026, 81, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/astonmartin/2026astonmartinlogowhite.webp'),
+  ('TEAM26-HAAS', 'Haas F1 Team', 'HAAS', 2026, 80, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/haasf1team/2026haasf1teamlogowhite.webp'),
+  ('TEAM26-AUDI', 'Audi', 'AUDI', 2026, 78, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/audi/2026audilogowhite.webp'),
+  ('TEAM26-ALPINE', 'Alpine', 'ALPINE', 2026, 80, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/alpine/2026alpinelogowhite.webp'),
+  ('TEAM26-CADILLAC', 'Cadillac', 'CADILLAC', 2026, 76, 'rare', 'TEAM', 'https://media.formula1.com/image/upload/c_fit,w_500/q_auto/v1740000001/common/f1/2026/cadillac/2026cadillaclogowhite.webp')
 on conflict (id) do update set
   name = excluded.name,
   short_name = excluded.short_name,

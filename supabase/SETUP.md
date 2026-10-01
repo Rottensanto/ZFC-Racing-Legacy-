@@ -1,32 +1,47 @@
 # Supabase einrichten
 
-## 1. Datenbank
+Die Website verwendet E-Mail und Passwort. Neue Konten bekommen automatisch ein Profil; du musst dafür keine Nutzer manuell in der Datenbank anlegen.
 
-1. Ein Supabase-Projekt anlegen.
-2. `schema.sql` vollständig im Supabase SQL Editor ausführen.
-3. Unter **Project Settings → API** die Project URL und den `anon`/Publishable Key kopieren.
-4. Beide Werte in `scripts/config.js` bei `supabaseUrl` und `supabaseAnonKey` eintragen. Niemals den `service_role`-Key in diese Website kopieren.
+## 1. Projekt verbinden
 
-## 2. Google und Passwort
+1. Erstelle ein Projekt unter [supabase.com](https://supabase.com/).
+2. Öffne im Dashboard **SQL Editor**, füge den gesamten Inhalt aus `schema.sql` ein und führe ihn aus.
+3. Öffne **Project Settings → API**. Kopiere die **Project URL** und den **Publishable key** (bei älteren Projekten heißt dieser `anon` key).
+4. Trage beide Werte in `scripts/config.js` ein. Die URL endet auf `.supabase.co` und darf **nicht** `/rest/v1/` enthalten. Den `service_role`-Key niemals in die Website eintragen.
 
-1. Unter **Authentication → Providers** Google aktivieren und die Google OAuth Client-ID sowie das Client-Secret im Supabase Dashboard hinterlegen.
-2. Die von Supabase angezeigte Callback-URL in der Google Cloud OAuth-Konfiguration als autorisierte Redirect-URL eintragen.
-3. Unter **Authentication → URL Configuration** die Website-URL und die lokale Testadresse, zum Beispiel `http://localhost:4173/**`, als erlaubte Redirect-URLs ergänzen.
-4. E-Mail/Passwort unter **Authentication → Providers → Email** aktivieren. E-Mail-Bestätigung eingeschaltet lassen.
+Beispiel:
 
-## 3. Admin
+```js
+window.APP_CONFIG = Object.freeze({
+  supabaseUrl: 'https://DEINE-PROJEKT-ID.supabase.co',
+  supabaseAnonKey: 'DEIN_PUBLISHABLE_KEY',
+  authRedirectUrl: ''
+});
+```
 
-Mit dem gewünschten Google-Konto einmal regulär registrieren und anschließend im Supabase SQL Editor genau diese E-Mail als einzige Admin-Rolle einsetzen:
+## 2. E-Mail und Passwort einstellen
+
+1. Öffne **Authentication → Sign In / Providers → Email** und aktiviere E-Mail-Anmeldung.
+2. Stelle eine Mindestlänge von **8 Zeichen** für Passwörter ein.
+3. Für den einfachsten Einstieg schalte **Confirm email** aus. Nach der Registrierung ist das Konto dann sofort angemeldet.
+4. Für eine öffentliche oder produktive Website schalte **Confirm email** ein und richte unter **Authentication → SMTP Settings** einen eigenen E-Mail-Versand ein. Neue Nutzer müssen dann erst den Bestätigungslink anklicken.
+5. Öffne **Authentication → URL Configuration**. Setze **Site URL** auf die Website-Adresse und ergänze unter **Redirect URLs** alle verwendeten Adressen, zum Beispiel `http://localhost:4173/**` sowie deine veröffentlichte Domain.
+
+Es ist keine Google-Konfiguration erforderlich. Im Login-Bereich können Nutzer zwischen **Anmelden** und **Konto erstellen** wechseln. Der Fahrername ist optional. Der Link zum Zurücksetzen des Passworts verwendet dieselben Redirect-Adressen.
+
+## 3. Admin-Zugang (optional)
+
+Erstelle zunächst ein Konto über die Website. Ersetze danach im SQL-Befehl die Beispieladresse durch die E-Mail-Adresse dieses Kontos und führe ihn im Supabase **SQL Editor** aus:
 
 ```sql
 insert into public.user_roles (user_id, role)
 select id, 'admin'
 from auth.users
-where lower(email) = lower('s.barbosa.galaxy@gmail.com')
+where lower(email) = lower('admin@example.com')
 on conflict (user_id) do update set role = 'admin';
 ```
 
-Die Adminrolle kann nicht über die Website vergeben werden. Der Adminbereich und die Punktevergabe werden zusätzlich in den Datenbankfunktionen geprüft.
+Die Adminrolle lässt sich nicht über die Website vergeben. Das Schema erstellt für jedes neue Auth-Konto automatisch ein Profil und schützt Kontodaten mit Row Level Security.
 
 ## Spielregeln
 

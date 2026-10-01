@@ -1,4 +1,5 @@
 let supabaseClient = null;
+let authMode = 'login';
 
 function setAuthMessage(message, isError = false) {
  const target = document.getElementById('authMessage');
@@ -18,7 +19,17 @@ function requireBackend() {
 }
 
 function displayBackendError(error) {
- const message = error?.message || 'Aktion fehlgeschlagen. Bitte erneut versuchen.';
+ const rawMessage = error?.message || '';
+ const friendlyMessages = [
+  [/invalid login credentials/i, 'E-Mail oder Passwort ist falsch.'],
+  [/user already registered/i, 'Für diese E-Mail gibt es bereits ein Konto. Melde dich an oder setze dein Passwort zurück.'],
+  [/password should be at least/i, 'Das Passwort muss mindestens 8 Zeichen haben.'],
+  [/email not confirmed/i, 'Bitte bestätige zuerst deine E-Mail-Adresse.'],
+  [/failed to fetch|fetch failed/i, 'Supabase ist nicht erreichbar. Prüfe deine Projekt-URL und Internetverbindung.']
+ ];
+ const message = friendlyMessages.find(([pattern]) => pattern.test(rawMessage))?.[1]
+   || rawMessage
+   || 'Aktion fehlgeschlagen. Bitte erneut versuchen.';
  setAuthMessage(message, true);
  toast(message);
 }
@@ -150,11 +161,23 @@ function updateAccountUI() {
  setText('dashCardCount', userCards.length.toLocaleString());
 }
 
-async function loginWithGoogle() {
- if (!requireBackend()) return;
- const redirectTo = window.APP_CONFIG.authRedirectUrl || `${window.location.origin}${window.location.pathname}`;
- const { error } = await supabaseClient.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
- if (error) displayBackendError(error);
+function setAuthMode(mode) {
+ authMode = mode === 'signup' ? 'signup' : 'login';
+ const isSignup = authMode === 'signup';
+ document.getElementById('signupNameField')?.classList.toggle('hidden', !isSignup);
+ document.getElementById('loginPassword').autocomplete = isSignup ? 'new-password' : 'current-password';
+ document.getElementById('authSubmitButton').textContent = isSignup ? 'KONTO ERSTELLEN' : 'ANMELDEN';
+ document.getElementById('authLoginMode').classList.toggle('red', !isSignup);
+ document.getElementById('authSignupMode').classList.toggle('red', isSignup);
+ document.getElementById('authLoginMode').setAttribute('aria-pressed', String(!isSignup));
+ document.getElementById('authSignupMode').setAttribute('aria-pressed', String(isSignup));
+ setAuthMessage(isSignup ? 'Lege dein Konto mit E-Mail und einem Passwort mit mindestens 8 Zeichen an.' : 'E-Mail und Passwort eingeben.');
+}
+
+function submitAuthForm(event) {
+ event.preventDefault();
+ if (authMode === 'signup') createAccount();
+ else loginWithPassword();
 }
 
 async function loginWithPassword() {
@@ -182,7 +205,7 @@ async function createAccount() {
    }
  });
  if (error) displayBackendError(error);
- else setAuthMessage('Konto erstellt. Bitte bestätige deine E-Mail, falls Supabase dies verlangt.');
+ else setAuthMessage('Konto erstellt. Prüfe dein E-Mail-Postfach, falls eine Bestätigung aktiviert ist.');
 }
 
 async function resetAccountPassword() {

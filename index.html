@@ -100,13 +100,19 @@
 
 <section id="login" class="page">
   <div class="auth-wrap"><div class="auth">
-    <div class="logo">F<span>1</span></div><h2>F1 DRIVER ACCOUNT</h2><div class="sub">Melde dich auf jedem Gerät an und greife auf deine Karten zu.</div>
-    <div class="field"><label>Fahrername</label><input id="signupName" autocomplete="name" placeholder="Dein Name in der Liga"></div>
-    <div class="field"><label>E-Mail</label><input id="loginUser" type="email" autocomplete="email" placeholder="name@example.com"></div>
-    <div class="field"><label>Passwort</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Mindestens 8 Zeichen"></div>
-    <div class="auth-actions"><button class="btn red big" onclick="loginWithGoogle()">MIT GOOGLE ANMELDEN</button><button class="btn" onclick="loginWithPassword()">MIT E-MAIL ANMELDEN</button><button class="btn" onclick="createAccount()">KONTO ERSTELLEN</button></div>
-    <div class="auth-secondary"><button onclick="resetAccountPassword()">Passwort zurücksetzen</button></div>
-    <p id="authMessage" class="account-status" role="status">Mit Google oder E-Mail und Passwort anmelden.</p>
+    <div class="logo">F<span>1</span></div><h2>F1 DRIVER ACCOUNT</h2><div class="sub">Melde dich mit deiner E-Mail-Adresse an oder erstelle ein Konto.</div>
+    <div class="auth-mode" role="group" aria-label="Anmeldeart">
+      <button class="btn red" id="authLoginMode" type="button" aria-pressed="true" onclick="setAuthMode('login')">ANMELDEN</button>
+      <button class="btn" id="authSignupMode" type="button" aria-pressed="false" onclick="setAuthMode('signup')">KONTO ERSTELLEN</button>
+    </div>
+    <form id="authForm" onsubmit="submitAuthForm(event)">
+      <div class="field hidden" id="signupNameField"><label for="signupName">Fahrername (optional)</label><input id="signupName" autocomplete="name" placeholder="Dein Name in der Liga"></div>
+      <div class="field"><label for="loginUser">E-Mail</label><input id="loginUser" type="email" autocomplete="email" placeholder="name@example.com" required></div>
+      <div class="field"><label for="loginPassword">Passwort</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Mindestens 8 Zeichen" minlength="8" required></div>
+      <div class="auth-actions"><button class="btn red big" id="authSubmitButton" type="submit">ANMELDEN</button></div>
+    </form>
+    <div class="auth-secondary"><button type="button" onclick="resetAccountPassword()">Passwort zurücksetzen</button></div>
+    <p id="authMessage" class="account-status" role="status" aria-live="polite">E-Mail und Passwort eingeben oder ein Konto erstellen.</p>
   </div></div>
 </section>
 
