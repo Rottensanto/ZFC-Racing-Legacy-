@@ -12,12 +12,18 @@ create table if not exists public.profiles (
   display_name text not null default 'F1 Driver',
   coins bigint not null default 0 check (coins >= 0),
   f1_points bigint not null default 0 check (f1_points >= 0),
+  progress_xp bigint not null default 0 check (progress_xp >= 0),
+  level bigint generated always as ((progress_xp / 25000) + 1) stored,
   welcome_bonus_claimed_at timestamptz default now(),
   created_at timestamptz not null default now()
 );
 
 alter table public.profiles
   add column if not exists welcome_bonus_claimed_at timestamptz default now();
+alter table public.profiles
+  add column if not exists progress_xp bigint not null default 0 check (progress_xp >= 0);
+alter table public.profiles
+  add column if not exists level bigint generated always as ((progress_xp / 25000) + 1) stored;
 
 create table if not exists public.cards (
   id text primary key,
@@ -112,6 +118,7 @@ begin
 
   update public.profiles
     set coins = coins + v_bonus,
+        progress_xp = progress_xp + v_bonus,
         welcome_bonus_claimed_at = now()
     where id = v_user_id and welcome_bonus_claimed_at is null
     returning coins into v_balance;
@@ -283,7 +290,8 @@ begin
   if v_price is null then raise exception 'Dieses Pack ist nicht verfügbar.'; end if;
 
   update public.profiles as p
-    set coins = p.coins - v_price
+    set coins = p.coins - v_price,
+        progress_xp = p.progress_xp + v_price
     where p.id = v_user_id and p.coins >= v_price
     returning p.coins into v_new_balance;
   if not found then raise exception 'Nicht genügend Coins.'; end if;
@@ -334,7 +342,10 @@ begin
     + ((v_card.level - 1) * 75);
 
   delete from public.user_cards where id = p_instance_id and user_id = v_user_id;
-  update public.profiles as p set coins = p.coins + v_value where p.id = v_user_id returning p.coins into v_balance;
+  update public.profiles as p
+    set coins = p.coins + v_value,
+        progress_xp = p.progress_xp + v_value
+    where p.id = v_user_id returning p.coins into v_balance;
   insert into public.coin_ledger(user_id, coins_delta, kind, detail)
     values (v_user_id, v_value, 'card_sale', jsonb_build_object('card', v_card.short_name, 'level', v_card.level, 'tier', v_card.tier));
 
@@ -410,7 +421,8 @@ begin
 
   update public.profiles as p
     set f1_points = p.f1_points - v_points_spent,
-        coins = p.coins + v_coins
+        coins = p.coins + v_coins,
+        progress_xp = p.progress_xp + v_coins
     where p.id = v_user_id
     returning p.coins into v_new_coins;
   insert into public.coin_ledger(user_id, coins_delta, kind, detail)

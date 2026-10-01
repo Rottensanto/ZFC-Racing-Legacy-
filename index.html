@@ -143,7 +143,7 @@
       <div style="height:18px"></div>
       <div class="dashboard-grid">
         <div>
-          <div class="panel"><h3>Your Progress</h3><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px"><b>LEVEL 24</b><span style="color:#888">15,320 / 25,000 XP</span></div><div class="progress"><i></i></div>
+          <div class="panel"><h3>Your Progress</h3><div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px"><b>LEVEL <span id="playerLevel">1</span></b><span id="levelProgressText" style="color:#888">0 / 25.000 XP</span></div><div class="progress"><i id="levelProgressBar" style="width:0%"></i></div>
             <div class="mini-grid" style="margin-top:15px"><div class="mini"><small>F1-Punkte</small><b id="dashPoints">0</b></div><div class="mini"><small>Coins</small><b id="dashCoins">0</b></div><div class="mini"><small>Karten</small><b id="dashCardCount">0</b></div></div>
             <div class="convert"><h3 style="margin-top:20px">F1-Punkte in Coins tauschen</h3><div class="convert-line"><span>0%</span><span id="convertValue">25% MAX</span></div><input class="range" id="convertRange" type="range" min="0" max="25" value="25" oninput="updateConvert()"><div class="convert-line"><span>Punkte eingesetzt: <b id="usedPoints">0</b></span><span>Coins: <b style="color:#e9bd43" id="receiveCoins">0 C</b></span></div><small>10 F1-Punkte = 1 Coin · Tageslimit 500 Coins</small><button class="btn red" onclick="convertPoints()">UMTAUSCHEN</button></div>
           </div>

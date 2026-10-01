@@ -144,6 +144,12 @@ function updateAccountUI() {
  setText('accountEmail', email);
  setText('accountCoins', (accountProfile?.coins || 0).toLocaleString());
  setText('accountPoints', (accountProfile?.f1_points || 0).toLocaleString());
+ const progressXp = Math.max(0, Number(accountProfile?.progress_xp || 0));
+ const levelProgressXp = progressXp % 25000;
+ setText('playerLevel', String(Math.floor(progressXp / 25000) + 1));
+ setText('levelProgressText', `${levelProgressXp.toLocaleString()} / 25.000 XP`);
+ const levelProgressBar = document.getElementById('levelProgressBar');
+ if (levelProgressBar) levelProgressBar.style.width = `${(levelProgressXp / 25000) * 100}%`;
  setText('welcomeName', name);
  setText('coinCount', (accountProfile?.coins || 0).toLocaleString());
  setText('dashCoins', (accountProfile?.coins || 0).toLocaleString());

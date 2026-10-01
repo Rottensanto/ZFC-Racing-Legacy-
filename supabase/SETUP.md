@@ -79,6 +79,8 @@ Wichtig: Die Callback-URL im Discord Portal ist die Supabase-Adresse oben. Sie i
 
 Neue Konten erhalten einmalig ein **3.000-Coins-Willkommensgeschenk**. Der Bonus wird erst nach Klick auf **Geschenk claimen** gutgeschrieben. Bestehende Konten sind von diesem Registrierungsbonus ausgeschlossen. Nach einer Schemaänderung `schema.sql` erneut ausführen.
 
+Spieler starten auf **Level 1**. Alle 25.000 XP steigt das Level um eins. Verdiente Coins (Willkommensbonus, Kartenverkauf und Punkteumtausch) sowie der Preis gekaufter Packs zählen dauerhaft als XP. Ausgegebene Coins ziehen keine XP ab. Bestehende Profile starten beim Schema-Update ebenfalls auf Level 1.
+
 ## 4. Admin-Zugang (optional)
 
 Erstelle zunächst ein Konto über die Website. Ersetze danach im SQL-Befehl die Beispieladresse durch die E-Mail-Adresse dieses Kontos und führe ihn im Supabase **SQL Editor** aus:
