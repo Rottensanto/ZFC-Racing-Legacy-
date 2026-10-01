@@ -15,7 +15,7 @@ Beispiel:
 window.APP_CONFIG = Object.freeze({
   supabaseUrl: 'https://DEINE-PROJEKT-ID.supabase.co',
   supabaseAnonKey: 'DEIN_PUBLISHABLE_KEY',
-  authRedirectUrl: ''
+  authRedirectUrl: 'https://rottensanto.github.io/ZFC-Racing-Legacy-/'
 });
 ```
 
