@@ -6,10 +6,16 @@
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:
+body{margin:0;isolation:isolate;background:
  radial-gradient(circle at 80% -10%,rgba(225,6,0,.16),transparent 30%),
  radial-gradient(circle at 10% 20%,rgba(255,255,255,.035),transparent 24%),
  var(--bg);color:var(--white);font-family:Inter,Segoe UI,Arial,sans-serif;min-height:100vh}
+body:before{content:"";position:fixed;inset:-8%;z-index:-1;pointer-events:none;opacity:.48;background:
+ linear-gradient(112deg,transparent 0 28%,rgba(42,229,255,.13) 28.1%,transparent 28.35% 62%,rgba(255,37,71,.12) 62.1%,transparent 62.35%),
+ repeating-linear-gradient(112deg,transparent 0 176px,rgba(42,229,255,.11) 177px 179px,transparent 180px 342px),
+ repeating-linear-gradient(72deg,transparent 0 286px,rgba(255,37,71,.09) 287px 289px,transparent 290px 472px);
+ mask-image:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent);animation:neon-background-drift 17s ease-in-out infinite alternate}
+@keyframes neon-background-drift{from{transform:translate3d(-1.2%,0,0)}to{transform:translate3d(1.2%,1.5%,0)}}
 button,input{font:inherit}
 button{cursor:pointer}
 a{text-decoration:none;color:inherit}
