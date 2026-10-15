@@ -8,5 +8,17 @@
 .pack-shop.platinum .foil span{color:#dcecff}
 .pack.gold .foil span{color:#fff2a5}
 .pack.legend .foil span{color:#ffd9ff}
+.grid4.pack-grid{grid-template-columns:repeat(auto-fit,minmax(210px,1fr));align-items:stretch}
+.pack-shop.gold .foil,.pack-shop.gold-double .foil,.pack-shop.legend .foil{isolation:isolate;box-shadow:0 0 18px rgba(255,198,64,.2),0 18px 45px #000}
+.pack-shop.gold .foil:before,.pack-shop.gold-double .foil:before,.pack-shop.legend .foil:before{content:"";position:absolute;z-index:1;inset:5%;border:1px solid rgba(255,226,135,.62);pointer-events:none;opacity:.82}
+.pack-shop.gold .foil:after,.pack-shop.gold-double .foil:after,.pack-shop.legend .foil:after{content:"";position:absolute;z-index:1;inset:-35% -65%;background:linear-gradient(118deg,transparent 42%,rgba(255,245,198,.05) 46%,rgba(255,223,114,.76) 49%,rgba(255,255,255,.8) 50%,rgba(255,188,56,.24) 53%,transparent 58%);transform:translateX(-70%);mix-blend-mode:screen;pointer-events:none;animation:pack-tier-sweep 3.8s ease-in-out infinite}
+.pack-shop.gold .foil .shop-logo,.pack-shop.gold .foil span,.pack-shop.gold-double .foil .shop-logo,.pack-shop.gold-double .foil span,.pack-shop.legend .foil .shop-logo,.pack-shop.legend .foil span{z-index:2}
+.pack-shop.gold-double .foil{border-color:#ff963d;background:linear-gradient(135deg,#7c3512,#111018 42%,#f2b83d)}
+.pack-shop.gold-double .foil span{color:#fff1bc}
+.pack-shop.legend .foil{box-shadow:0 0 22px rgba(238,62,255,.3),0 0 34px rgba(67,212,255,.15),0 18px 45px #000}
+.pack-shop.legend .foil:before{border-color:rgba(255,102,232,.86);box-shadow:inset 0 0 18px rgba(255,60,227,.2),0 0 14px rgba(255,60,227,.32)}
+.pack-shop.legend .foil:after{background:linear-gradient(118deg,transparent 42%,rgba(250,197,255,.05) 46%,rgba(255,76,226,.75) 49%,rgba(255,255,255,.86) 50%,rgba(67,224,255,.56) 52%,transparent 58%);animation-duration:3.1s}
+@keyframes pack-tier-sweep{0%,12%{transform:translateX(-72%);opacity:0}32%{opacity:.9}68%{opacity:.75}100%{transform:translateX(72%);opacity:0}}
+@media(prefers-reduced-motion:reduce){.pack-shop.gold .foil:after,.pack-shop.gold-double .foil:after,.pack-shop.legend .foil:after{animation:none}}
 
 .collection-head{display:flex;gap:12px;align-items:center;margin-bottom:20px}.search{flex:1;background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.filter{background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.collection-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:15px}

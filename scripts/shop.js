@@ -3,6 +3,7 @@ function openPurchase(name,cost,type){
  selectedPack={name,cost,type};
  document.getElementById('modalName').textContent=name;document.getElementById('modalCost').textContent=cost.toLocaleString();
  document.getElementById('modalPackText').textContent=name.replace(' PACK','');
+ document.getElementById('modalDescription').textContent=`${type==='gold_double'?10:5} zufällige Karten. Die Verteilung wird beim Öffnen bestimmt.`;
  document.getElementById('purchaseMessage').innerHTML='';
  document.getElementById('purchaseModal').classList.add('open');
 }
@@ -146,6 +147,7 @@ function openShowroom(packName,packType,openedCards=null){
  const confetti=document.getElementById('revealConfetti');
  const tier=['bronze','gold','platinum','legend'].includes(packType)?packType:'gold';
  const reducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+ document.getElementById('showCardCount').textContent=`DEINE ${openedCards?.length||5} NEUEN KARTEN`;
  showroom.dataset.packTier=tier;
  showroom.classList.remove('opening-active','revealed','cards-visible','stage-finished');
  document.querySelector('.sequence-pack').innerHTML=packArtwork(tier);
@@ -156,7 +158,11 @@ function openShowroom(packName,packType,openedCards=null){
  playOpeningSound(tier);
  const revealCards=()=>{
   const pool=openedCards?.length?openedCards:cards.slice().sort(()=>Math.random()-.5).slice(0,5);
-   openingCards.innerHTML=pool.map((c,i)=>`<div class="opening-card${cardTier(c)==='legend'?' legendary-reveal':''}" style="--index:${i};--delay:${reducedMotion?0:i*.42}s">${cardHTML(c)}</div>`).join('');
+  openingCards.innerHTML=pool.map((c,i)=>{
+   const isLegendary=cardTier(c)==='legend';
+   const spotlights=isLegendary?'<div class="legend-spotlights" aria-hidden="true"><span></span><span></span><span></span></div>':'';
+   return `<div class="opening-card${isLegendary?' legendary-reveal':''}" style="--index:${i};--delay:${reducedMotion?0:i*.42}s">${spotlights}${cardHTML(c)}</div>`;
+  }).join('');
   showroom.classList.remove('opening-active');
   showroom.classList.add('cards-visible');
    if(reducedMotion){openingCards.classList.add('inspecting');showroom.classList.add('stage-finished','revealed');return}

@@ -31,6 +31,7 @@ function displayBackendError(error) {
   [/user already registered/i, 'Für diese E-Mail gibt es bereits ein Konto. Melde dich an oder setze dein Passwort zurück.'],
   [/password should be at least/i, 'Das Passwort muss mindestens 8 Zeichen haben.'],
   [/email not confirmed/i, 'Bitte bestätige zuerst deine E-Mail-Adresse.'],
+  [/email rate limit exceeded|rate limit.*email|over_email_send_rate_limit/i, 'Supabase hat das E-Mail-Limit erreicht. Warte, bis es zurückgesetzt ist. Für weitere Nutzer richte einen eigenen SMTP-Maildienst unter Authentication → SMTP Settings ein.'],
   [/failed to fetch|fetch failed/i, 'Supabase ist nicht erreichbar. Prüfe deine Projekt-URL und Internetverbindung.']
  ];
  const message = friendlyMessages.find(([pattern]) => pattern.test(rawMessage))?.[1]

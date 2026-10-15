@@ -51,6 +51,11 @@ create table if not exists public.pack_catalog (
   enabled boolean not null default true
 );
 
+alter table public.pack_catalog drop constraint if exists pack_catalog_tier_check;
+alter table public.pack_catalog
+  add constraint pack_catalog_tier_check
+  check (tier in ('bronze', 'platinum', 'gold', 'gold_double', 'legend'));
+
 create table if not exists public.user_cards (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
@@ -280,10 +285,32 @@ on conflict (id) do update set
   card_type = excluded.card_type,
   image_url = excluded.image_url;
 
+insert into public.cards (id, name, short_name, card_year, rating, rarity, card_type, image_url) values
+  ('CAR26-MCLAREN', 'McLaren 2026 F1 Livery', 'MCLAREN F1', 2026, 84, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/mclaren/2026mclarencarright.webp'),
+  ('CAR26-MERCEDES', 'Mercedes 2026 F1 Livery', 'MERCEDES F1', 2026, 84, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/mercedes/2026mercedescarright.webp'),
+  ('CAR26-REDBULL', 'Red Bull Racing 2026 F1 Livery', 'RED BULL F1', 2026, 84, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/redbullracing/2026redbullracingcarright.webp'),
+  ('CAR26-RACINGBULLS', 'Racing Bulls 2026 F1 Livery', 'RACING BULLS', 2026, 79, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/racingbulls/2026racingbullscarright.webp'),
+  ('CAR26-FERRARI', 'Ferrari 2026 F1 Livery', 'FERRARI F1', 2026, 84, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/ferrari/2026ferraricarright.webp'),
+  ('CAR26-WILLIAMS', 'Williams 2026 F1 Livery', 'WILLIAMS F1', 2026, 82, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/williams/2026williamscarright.webp'),
+  ('CAR26-ASTONMARTIN', 'Aston Martin 2026 F1 Livery', 'ASTON MARTIN F1', 2026, 81, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/astonmartin/2026astonmartincarright.webp'),
+  ('CAR26-HAAS', 'Haas 2026 F1 Livery', 'HAAS F1', 2026, 80, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/haasf1team/2026haasf1teamcarright.webp'),
+  ('CAR26-AUDI', 'Audi 2026 F1 Livery', 'AUDI F1', 2026, 78, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/audi/2026audicarright.webp'),
+  ('CAR26-ALPINE', 'Alpine 2026 F1 Livery', 'ALPINE F1', 2026, 80, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/alpine/2026alpinecarright.webp'),
+  ('CAR26-CADILLAC', 'Cadillac 2026 F1 Livery', 'CADILLAC F1', 2026, 76, 'rare', 'CAR', 'https://media.formula1.com/image/upload/c_lfill,h_224/q_auto/d_common:f1:2026:fallback:car:2026fallbackcarright.webp/v1740000001/common/f1/2026/cadillac/2026cadillaccarright.webp')
+on conflict (id) do update set
+  name = excluded.name,
+  short_name = excluded.short_name,
+  card_year = excluded.card_year,
+  rating = excluded.rating,
+  rarity = excluded.rarity,
+  card_type = excluded.card_type,
+  image_url = excluded.image_url;
+
 insert into public.pack_catalog (tier, name, price) values
   ('bronze', 'BRONZE PACK', 1000),
   ('platinum', 'PLATINUM PACK', 5000),
   ('gold', 'GOLD PACK', 9500),
+  ('gold_double', 'GOLD DOUBLE PACK', 18000),
   ('legend', 'LEGEND PACK', 17000)
 on conflict (tier) do update set name = excluded.name, price = excluded.price, enabled = true;
 
@@ -301,10 +328,14 @@ declare
   v_instance_id uuid;
   v_instances uuid[] := array[]::uuid[];
   v_index integer;
+  v_card_count integer;
+  v_roll double precision;
+  v_target_tier text;
 begin
   if v_user_id is null then raise exception 'Bitte zuerst anmelden.'; end if;
   select price into v_price from public.pack_catalog where pack_catalog.tier = p_tier and enabled;
   if v_price is null then raise exception 'Dieses Pack ist nicht verfügbar.'; end if;
+  v_card_count := case when p_tier = 'gold_double' then 10 else 5 end;
 
   update public.profiles as p
     set coins = p.coins - v_price,
@@ -316,8 +347,22 @@ begin
   insert into public.coin_ledger(user_id, coins_delta, kind, detail)
     values (v_user_id, -v_price, 'pack_purchase', jsonb_build_object('tier', p_tier));
 
-  for v_index in 1..5 loop
-    select c.id into v_catalog_id from public.cards as c order by random() limit 1;
+  for v_index in 1..v_card_count loop
+    v_roll := random() * 100;
+    case p_tier
+      when 'bronze' then
+        v_target_tier := case when v_roll < 92 then 'bronze' else 'gold' end;
+      when 'gold' then
+        v_target_tier := case when v_roll < 92 then 'gold' when v_roll < 99 then 'platinum' else 'legend' end;
+      when 'gold_double' then
+        v_target_tier := case when v_roll < 96.5 then 'gold' when v_roll < 99.7 then 'platinum' else 'legend' end;
+      when 'platinum' then
+        v_target_tier := case when v_roll < 15 then 'gold' when v_roll < 95 then 'platinum' else 'legend' end;
+      when 'legend' then
+        v_target_tier := case when v_roll < 5 then 'gold' when v_roll < 35 then 'platinum' else 'legend' end;
+    end case;
+
+    select c.id into v_catalog_id from public.cards as c where c.tier = v_target_tier order by random() limit 1;
     if v_catalog_id is null then raise exception 'Der Kartenkatalog ist leer.'; end if;
     insert into public.user_cards(user_id, card_id)
       values (v_user_id, v_catalog_id) returning id into v_instance_id;

@@ -27,6 +27,19 @@ window.APP_CONFIG = Object.freeze({
 4. Für eine öffentliche oder produktive Website schalte **Confirm email** ein und richte unter **Authentication → SMTP Settings** einen eigenen E-Mail-Versand ein. Neue Nutzer müssen dann erst den Bestätigungslink anklicken.
 5. Richte die Rückleitung wie im nächsten Abschnitt beschrieben ein.
 
+### Fehler „Email rate limit exceeded“
+
+Supabase begrenzt den Versand von Auth-E-Mails. Dieser Fehler entsteht meist beim wiederholten Anfordern von Bestätigungs-, Registrierungs- oder Passwort-zurücksetzen-Mails; eine normale Anmeldung mit bestätigtem Konto benötigt keine E-Mail. Fordere nicht wiederholt neue Nachrichten an und lege kein zweites Konto an. Warte, bis das Limit zurückgesetzt wurde.
+
+Für den dauerhaften Versand an weitere Nutzer:
+
+1. Richte bei einem E-Mail-Anbieter einen SMTP-Versand ein.
+2. Öffne im Supabase-Dashboard **Authentication → SMTP Settings** und trage SMTP-Host, Port, Benutzername, Passwort sowie Absenderadresse und Absendername ein.
+3. Prüfe unter **Authentication → Rate Limits** das E-Mail-Limit und erhöhe es nur im Rahmen des Versandlimits deines Anbieters.
+4. Belasse **Confirm email** für eine öffentliche Website aktiviert. Schalte es höchstens zum lokalen Testen aus.
+
+SMTP-Zugangsdaten gehören nur in die Supabase-Dashboard-Einstellungen, niemals in `scripts/config.js` oder ins Git-Repository. Bereits registrierte Nutzer können sich anmelden, sobald ihr Konto bestätigt ist; bei unbestätigten Konten nach der SMTP-Einrichtung eine neue Bestätigungsmail anfordern.
+
 ### Bestätigungslink auf GitHub Pages
 
 Die veröffentlichte Website liegt unter dieser Adresse. Pfad und abschließender Schrägstrich müssen genau so stimmen:
@@ -101,4 +114,5 @@ Die Adminrolle lässt sich nicht über die Website vergeben. Zusätzlich akzepti
 - Umtausch: Je 10 F1-Punkte ergeben 90 Coins. Der Spieler kann den Maximalbetrag oder einen Teilbetrag in 10er-Schritten auswählen; es gibt kein Tageslimit.
 - Kartenverkauf wird serverseitig nach Kartenstufe, Rating und Kartenlevel berechnet.
 - Karten starten auf Level 1; ein Levelaufstieg kostet `aktuelles Level × 300` Coins, bis maximal Level 10.
-- Packpreise: Bronze 1.000, Platinum 5.000, Gold 9.500, Legend 17.000 Coins.
+- Packpreise: Bronze 1.000, Platinum 5.000, Gold 9.500, Gold Double (10 Karten) 18.000, Legend 17.000 Coins.
+- Ziehungsquoten je Karte: Bronze 92 % Bronze / 8 % Gold (keine Platinum- oder Legend-Karten); Gold 92 % Gold / 7 % Platinum / 1 % Legend; Gold Double 96,5 % Gold / 3,2 % Platinum / 0,3 % Legend; Platinum 15 % Gold / 80 % Platinum / 5 % Legend; Legend 5 % Gold / 30 % Platinum / 65 % Legend.

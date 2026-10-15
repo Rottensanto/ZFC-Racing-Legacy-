@@ -60,3 +60,39 @@
 .card[data-tier="legend"]{--card-metal:#eed2ff;--card-light:#fff3ff;--card-glow:rgba(84,213,255,.78);--card-panel:rgba(20,13,37,.96);background:linear-gradient(145deg,#20365c,#110d24 53%,#32133b)}
 .card[data-tier="legend"]:before{inset:0;padding:3px;border-radius:inherit;background:conic-gradient(from var(--legend-angle),#ffd75a 0deg,#fff4b0 32deg,transparent 62deg 130deg,#55dfff 158deg,#c1f6ff 190deg,transparent 222deg 292deg,#ffd75a 324deg,#fff4b0 360deg);animation:legend-orbit 3s linear infinite;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:.95}
 .card[data-tier="legend"]:after{z-index:4;pointer-events:none}
+.card{display:grid;grid-template-rows:minmax(0,1fr) auto auto;gap:6px;padding:7px;border:2px solid var(--card-metal);border-radius:8px;background:linear-gradient(145deg,#172331,#080b11 56%,#10151d);box-shadow:inset 0 1px rgba(255,255,255,.22),inset 0 -14px 28px rgba(0,0,0,.44),0 12px 28px rgba(0,0,0,.54),0 0 16px var(--card-glow)}
+.card:before{z-index:3;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.14),transparent 22%,transparent 72%,rgba(255,255,255,.06)),repeating-linear-gradient(132deg,transparent 0 56px,rgba(255,255,255,.025) 57px 58px,transparent 59px 112px)}
+.card-media{position:relative;z-index:1;min-height:0;overflow:hidden;border:1px solid color-mix(in srgb,var(--card-metal),transparent 35%);border-radius:5px;background:radial-gradient(ellipse at 50% 35%,rgba(81,129,159,.16),transparent 62%),linear-gradient(155deg,#111923,#05070b 72%)}
+.card .photo{position:absolute;inset:0;width:auto;height:auto;min-height:0;flex:none;border-radius:0;background:transparent;box-shadow:none}
+.card .photo:after{background:linear-gradient(180deg,rgba(3,6,10,.03) 45%,rgba(3,6,10,.24) 70%,rgba(3,6,10,.9) 100%)}
+.card .photo-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 50%;filter:saturate(1.12) contrast(1.06)}
+.card[data-card-type="driver"] .driver-photo .photo-image{object-position:center 0%;transform:scale(1.06);transform-origin:center top}
+.card[data-card-type="car"] .car-photo .photo-image{object-fit:contain;object-position:center 56%;transform:scale(1.04);filter:drop-shadow(0 7px 10px rgba(0,0,0,.58)) saturate(1.14) contrast(1.04)}
+.card .team-photo{display:grid;place-items:center;background:radial-gradient(ellipse,rgba(255,255,255,.1),transparent 68%),linear-gradient(150deg,#10151b,#05070b)}
+.card .team-photo:after{display:none}
+.card .team-photo img{width:78%;height:66%;object-fit:contain;filter:drop-shadow(0 4px 11px rgba(0,0,0,.65))}
+.card .rating{top:9px;left:9px;width:49px;height:51px;display:flex;flex-direction:column;justify-content:center;gap:1px;padding:4px;border:1px solid var(--card-metal);border-radius:4px;background:rgba(3,7,12,.88);box-shadow:0 3px 10px rgba(0,0,0,.52);text-align:center;text-shadow:0 2px 8px #000}
+.card .rating span{color:var(--card-light);font-size:7px;font-weight:900;line-height:1;letter-spacing:.5px}
+.card .rating b{color:#fff;font-size:20px;font-weight:1000;line-height:1}
+.card .rarity{top:9px;right:9px;max-width:46%;padding:6px 7px;border:1px solid var(--card-metal);border-radius:4px;background:rgba(3,7,12,.88);font-size:7px;letter-spacing:.8px}
+.card .info{z-index:4;width:100%;min-width:0;margin:0;padding:7px 7px 6px;border:1px solid color-mix(in srgb,var(--card-metal),transparent 30%);border-radius:4px;background:linear-gradient(110deg,rgba(14,20,28,.98),rgba(5,8,12,.96));text-align:left}
+.card .name{min-height:1.15em;justify-content:flex-start;font-size:12px;line-height:1.15;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}
+.card .year{margin-top:3px;color:#aebbc6;font-size:8px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-specs{position:relative;z-index:4;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));overflow:hidden;border:1px solid color-mix(in srgb,var(--card-metal),transparent 38%);border-radius:4px;background:rgba(4,7,11,.92)}
+.card-specs div{display:grid;gap:3px;min-width:0;padding:6px 2px;text-align:center;border-right:1px solid rgba(255,255,255,.1)}
+.card-specs div:last-child{border-right:0}
+.card-specs span{color:var(--card-metal);font-size:6px;font-weight:900;line-height:1;white-space:nowrap}
+.card-specs b{color:#f4f7fa;font-size:7px;font-weight:900;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .card-red-neon{z-index:5;inset:3px;border-radius:5px}
+.card .card-level{top:auto;right:12px;bottom:31%;z-index:6}
+.card.livery-mclaren{--card-metal:#ff8a38;--card-light:#fff0dc;--card-glow:rgba(255,128,40,.48)}
+.card.livery-ferrari{--card-metal:#ff454d;--card-light:#ffe4e5;--card-glow:rgba(255,42,54,.5)}
+.card.livery-mercedes{--card-metal:#48e5d2;--card-light:#ddfff9;--card-glow:rgba(46,224,204,.5)}
+.card.livery-red-bull{--card-metal:#67a9ff;--card-light:#e4efff;--card-glow:rgba(69,134,255,.52)}
+.card.livery-racing-bulls{--card-metal:#64e9e5;--card-light:#e1fffc;--card-glow:rgba(46,222,219,.48)}
+.card.livery-alpine{--card-metal:#67baff;--card-light:#e2f2ff;--card-glow:rgba(54,145,255,.46)}
+.card.livery-haas{--card-metal:#d8e0e6;--card-light:#fff;--card-glow:rgba(211,225,239,.38)}
+.card.livery-audi{--card-metal:#ff5968;--card-light:#ffe7eb;--card-glow:rgba(255,67,89,.46)}
+.card.livery-aston-martin{--card-metal:#b7f36d;--card-light:#f1ffd9;--card-glow:rgba(159,233,74,.46)}
+.card.livery-williams{--card-metal:#67a9ff;--card-light:#e4efff;--card-glow:rgba(68,132,255,.46)}
+.card.livery-cadillac{--card-metal:#d8c59e;--card-light:#fff3d5;--card-glow:rgba(196,166,105,.42)}

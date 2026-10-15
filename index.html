@@ -86,7 +86,7 @@
     </div>
   </div></section>
   <section class="section" style="padding-top:0"><div class="container">
-    <div class="section-head"><div><h2>Featured Legends</h2><p>Beispiele für die höchste Kartenklasse.</p></div><button class="btn" onclick="showPage('collection')">VIEW COLLECTION</button></div>
+    <div class="section-head"><div><h2>Aktuelle Teams &amp; Liveries</h2><p>Fahrzeuge und Teams der Formel-1-Saison 2026.</p></div><button class="btn" onclick="showPage('collection')">VIEW COLLECTION</button></div>
     <div class="cards-row" id="homeCards"></div>
   </div></section>
 </section>
@@ -172,12 +172,13 @@
 
 <section id="shop" class="page">
   <div class="section"><div class="container">
-    <div class="section-head"><div><h2>Pack Shop</h2><p>Öffne 5 Karten pro Pack. Höhere Packs erhöhen die Chance auf seltene Karten.</p></div></div>
-    <div class="grid4">
-      <div class="pack pack-shop bronze"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>BRONZE</span></div></div><h3>BRONZE PACK</h3><p>5 Karten · Common+ · Einstiegspack</p><div class="odds"><span>COMMON 70%</span><span>RARE 25%</span><span>EPIC 5%</span></div><div class="price">1,000 C</div><button class="btn red" onclick="openPurchase('BRONZE PACK',1000,'bronze')">BUY PACK</button></div>
-      <div class="pack pack-shop platinum"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>PLATINUM</span></div></div><h3>PLATINUM PACK</h3><p>5 Karten · Rare+ · verbesserte Chancen</p><div class="odds"><span>COMMON 40%</span><span>RARE 40%</span><span>EPIC 17%</span></div><div class="price">5,000 C</div><button class="btn red" onclick="openPurchase('PLATINUM PACK',5000,'platinum')">BUY PACK</button></div>
-      <div class="pack pack-shop gold"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>GOLD</span></div></div><h3>GOLD PACK</h3><p>5 Karten · Rare+ · hohe Icon-Chance</p><div class="odds"><span>COMMON 40%</span><span>RARE 35%</span><span>EPIC 15%</span><span class="g">ICON 8%</span></div><div class="price">9,500 C</div><button class="btn gold" onclick="openPurchase('GOLD PACK',9500,'gold')">BUY PACK</button></div>
-      <div class="pack pack-shop legend"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>LEGEND</span></div></div><h3>LEGEND PACK</h3><p>5 Karten · Epic+ · seltene historische Icons</p><div class="odds"><span>RARE 35%</span><span>EPIC 40%</span><span class="g">ICON 20%</span><span class="g">LEGEND 5%</span></div><div class="price">17,000 C</div><button class="btn gold" onclick="openPurchase('LEGEND PACK',17000,'legend')">BUY PACK</button></div>
+    <div class="section-head"><div><h2>Pack Shop</h2><p>Bronze enthält maximal Gold-Karten. Das Gold Double Pack enthält 10 Karten.</p></div></div>
+    <div class="grid4 pack-grid">
+      <div class="pack pack-shop bronze"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>BRONZE</span></div></div><h3>BRONZE PACK</h3><p>5 Karten · maximal Gold</p><div class="odds"><span>BRONZE 92%</span><span class="g">GOLD 8%</span></div><div class="price">1.000 C</div><button class="btn red" onclick="openPurchase('BRONZE PACK',1000,'bronze')">PACK KAUFEN</button></div>
+      <div class="pack pack-shop platinum"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>PLATINUM</span></div></div><h3>PLATINUM PACK</h3><p>5 Karten · starke Platinum-Chance</p><div class="odds"><span>GOLD 15%</span><span>PLATINUM 80%</span><span class="g">LEGEND 5%</span></div><div class="price">5.000 C</div><button class="btn red" onclick="openPurchase('PLATINUM PACK',5000,'platinum')">PACK KAUFEN</button></div>
+      <div class="pack pack-shop gold"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>GOLD</span></div></div><h3>GOLD PACK</h3><p>5 Karten · Legenden bleiben selten</p><div class="odds"><span>GOLD 92%</span><span>PLATINUM 7%</span><span class="g">LEGEND 1%</span></div><div class="price">9.500 C</div><button class="btn gold" onclick="openPurchase('GOLD PACK',9500,'gold')">PACK KAUFEN</button></div>
+      <div class="pack pack-shop gold gold-double"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>GOLD DOUBLE</span></div></div><h3>GOLD DOUBLE PACK</h3><p>10 Karten · sehr niedrige Top-Tier-Chance</p><div class="odds"><span>GOLD 96,5%</span><span>PLATINUM 3,2%</span><span class="g">LEGEND 0,3%</span></div><div class="price">18.000 C</div><button class="btn gold" onclick="openPurchase('GOLD DOUBLE PACK',18000,'gold_double')">PACK KAUFEN</button></div>
+      <div class="pack pack-shop legend"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>LEGEND</span></div></div><h3>LEGEND PACK</h3><p>5 Karten · auf Legenden ausgerichtet</p><div class="odds"><span>GOLD 5%</span><span>PLATINUM 30%</span><span class="g">LEGEND 65%</span></div><div class="price">17.000 C</div><button class="btn gold" onclick="openPurchase('LEGEND PACK',17000,'legend')">PACK KAUFEN</button></div>
     </div>
   </div></section>
 </section>
@@ -196,7 +197,7 @@
     <div class="stage-lights" aria-hidden="true"></div>
     <div class="reveal-confetti" id="revealConfetti" aria-hidden="true"></div>
     <div class="container showroom-content">
-    <div class="showroom-title"><p>PACK-ÖFFNUNG</p><h1 id="showPackName">GOLD PACK</h1><div style="color:#777;font-size:11px">DEINE FÜNF NEUEN KARTEN</div></div>
+    <div class="showroom-title"><p>PACK-ÖFFNUNG</p><h1 id="showPackName">GOLD PACK</h1><div id="showCardCount" style="color:#777;font-size:11px">DEINE FÜNF NEUEN KARTEN</div></div>
     <div class="opening-cards" id="openingCards"></div>
     <div class="showroom-actions"><button class="btn red big" onclick="showPage('collection')">ADD TO COLLECTION</button> <button class="btn big" onclick="showPage('shop')">OPEN ANOTHER</button></div>
   </div></div>
@@ -209,7 +210,7 @@
   <div class="modal-head"><b>PACK PURCHASE</b><button class="close" onclick="closeModal()">×</button></div>
   <div class="purchase">
     <div class="pack-art"><div class="foil" id="modalFoil" style="width:145px;height:220px;border-radius:10px;background:linear-gradient(135deg,#4d3911,#0e0f11 40%,#8d671b);border:2px solid #d8a82c;display:flex;flex-direction:column;justify-content:center;align-items:center;box-shadow:0 18px 45px #000;transform:rotate(-3deg)"><b style="font-size:28px;font-style:italic">F1</b><span id="modalPackText" style="font-size:11px;letter-spacing:3px;margin-top:12px">GOLD</span></div></div>
-    <div class="purchase-info"><h2 id="modalName">GOLD PACK</h2><p>5 zufällige Karten. Die tatsächliche Verteilung wird erst beim Öffnen des Packs bestimmt. Karten können später in deiner Collection verwaltet oder auf dem Marketplace angeboten werden.</p><div class="cost"><span class="coin">C</span> <span id="modalCost">7,500</span></div><button class="btn gold big" style="width:100%" onclick="buyPack()">CONFIRM PURCHASE</button><div id="purchaseMessage"></div></div>
+    <div class="purchase-info"><h2 id="modalName">GOLD PACK</h2><p id="modalDescription">5 zufällige Karten. Die Verteilung wird beim Öffnen bestimmt.</p><div class="cost"><span class="coin">C</span> <span id="modalCost">7,500</span></div><button class="btn gold big" style="width:100%" onclick="buyPack()">CONFIRM PURCHASE</button><div id="purchaseMessage"></div></div>
   </div>
 </div></div>
 <div class="modal welcome-bonus-modal" id="welcomeBonusModal" role="dialog" aria-modal="true" aria-labelledby="welcomeBonusTitle">

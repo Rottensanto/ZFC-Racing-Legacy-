@@ -83,6 +83,16 @@
 .opening-card .card{box-shadow:0 0 30px var(--card-glow),inset 0 0 24px rgba(255,255,255,.07)}
 .opening-card.legendary-reveal .card{border-color:var(--card-metal);animation:legend-glory 2s ease-out both;animation-delay:calc(var(--delay) + .1s)}
 .opening-card.legendary-reveal .photo{animation:legend-photo 1.5s ease-out both;animation-delay:calc(var(--delay) + .1s)}
+.opening-card.legendary-reveal{z-index:5;isolation:isolate}
+.opening-card.legendary-reveal:before{content:"";position:absolute;z-index:0;inset:-10%;border-radius:14px;background:radial-gradient(ellipse at 50% 45%,rgba(255,214,75,.34),rgba(68,225,255,.16) 42%,transparent 72%);filter:blur(8px);opacity:0;animation:legend-aura 1.8s ease-out calc(var(--delay) + .1s) both;pointer-events:none}
+.legend-spotlights{position:absolute;z-index:1;top:-42%;left:-28%;right:-28%;height:48%;pointer-events:none;mix-blend-mode:screen}
+.legend-spotlights span{position:absolute;top:0;width:17%;height:100%;clip-path:polygon(0 0,100% 0,56% 100%,44% 100%);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,239,157,.38) 52%,rgba(255,208,69,.7));filter:drop-shadow(0 0 12px rgba(255,219,79,.75));transform-origin:50% 100%;opacity:.3;animation:legend-ray 1.25s ease-in-out calc(var(--delay) + .15s) infinite alternate}
+.legend-spotlights span:nth-child(1){left:18%;transform:rotate(-22deg)}
+.legend-spotlights span:nth-child(2){left:42%;background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(139,241,255,.4) 52%,rgba(85,218,255,.72));filter:drop-shadow(0 0 12px rgba(85,218,255,.76));animation-delay:calc(var(--delay) + .3s)}
+.legend-spotlights span:nth-child(3){left:66%;transform:rotate(22deg);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,159,247,.36) 52%,rgba(243,79,218,.68));filter:drop-shadow(0 0 12px rgba(243,79,218,.72));animation-delay:calc(var(--delay) + .45s)}
+.opening-card.legendary-reveal .card{position:relative;z-index:3}
+@keyframes legend-aura{0%{opacity:0;transform:scale(.72)}25%{opacity:1}100%{opacity:.38;transform:scale(1.12)}}
+@keyframes legend-ray{from{opacity:.2;filter:brightness(.8)}to{opacity:.82;filter:brightness(1.65)}}
 @keyframes legend-glory{0%{box-shadow:0 0 0 var(--card-glow);filter:brightness(.7)}28%{box-shadow:0 0 65px 16px #ffd75a,0 0 120px #55dfff;filter:brightness(1.6)}55%{box-shadow:0 0 35px 6px #ffd75a,0 0 70px #55dfff;filter:brightness(1.15)}100%{box-shadow:0 0 28px var(--card-glow);filter:brightness(1)}}
 @keyframes legend-orbit{to{--legend-angle:360deg}}
 @keyframes legend-sweep{0%,10%{transform:translate(-82%,82%);opacity:0}24%{opacity:.55}76%{opacity:.42}100%{transform:translate(82%,-82%);opacity:0}}
