@@ -37,14 +37,19 @@ body:before{
 }
 body:after{
   inset:0;
-  opacity:.19;
+  opacity:.48;
   background:
+    linear-gradient(115deg,transparent 0 43%,rgba(225,6,0,0) 45%,rgba(225,6,0,.48) 46%,rgba(255,110,78,.9) 46.16%,rgba(225,6,0,0) 46.55%,transparent 49% 100%),
+    linear-gradient(115deg,transparent 0 41%,rgba(225,6,0,0) 45.5%,rgba(255,55,44,.9) 46.05%,rgba(255,199,126,.92) 46.16%,rgba(225,6,0,0) 46.38%,transparent 49% 100%),
+    linear-gradient(115deg,transparent 0 31%,rgba(80,217,239,0) 33%,rgba(80,217,239,.45) 33.8%,rgba(158,246,255,.9) 33.95%,rgba(80,217,239,0) 34.3%,transparent 37% 100%),
+    linear-gradient(115deg,transparent 0 29%,rgba(80,217,239,0) 33.4%,rgba(80,217,239,.85) 33.9%,rgba(225,255,255,.96) 34.02%,rgba(80,217,239,0) 34.25%,transparent 37% 100%),
     linear-gradient(115deg,transparent 0 47%,rgba(91,207,225,.1) 47.1%,transparent 47.3% 100%),
     repeating-linear-gradient(0deg,transparent 0 79px,rgba(177,198,219,.08) 80px,transparent 81px),
     repeating-linear-gradient(90deg,transparent 0 79px,rgba(177,198,219,.06) 80px,transparent 81px);
-  background-size:100% 100%,100% 160px,160px 100%;
-  mask-image:linear-gradient(180deg,#000,transparent 92%);
-  animation:telemetry-scroll 18s linear infinite;
+  background-size:260vw 100vh,260vw 100vh,260vw 100vh,260vw 100vh,100% 100%,100% 160px,160px 100%;
+  background-position:-170vw 0,170vw 0,-170vw 0,170vw 0,0 0,0 0,0 0;
+  mask-image:linear-gradient(180deg,#000 0%,#000 84%,transparent 100%);
+  animation:neon-track-sweep 14s linear infinite;
 }
 a,button,input,select,summary{ -webkit-tap-highlight-color:transparent }
 button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{
@@ -351,7 +356,185 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 }
 .search:focus,.filter:focus{outline:2px solid rgba(80,217,239,.7);outline-offset:1px}
 .card{filter:drop-shadow(0 10px 20px rgba(0,0,0,.15))}
-.card:hover{filter:drop-shadow(0 16px 22px rgba(0,0,0,.32))}
+.card{
+  --card-edge:var(--card-metal);
+  --card-surface:#10151d;
+  --card-accent:rgba(255,255,255,.22);
+  padding:0;
+  border:3px solid var(--card-edge);
+  background:linear-gradient(145deg,var(--card-edge),#080a0e 22%,var(--card-surface) 55%,#080a0e 82%,var(--card-edge));
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.78),inset 0 0 18px rgba(0,0,0,.5);
+  transform-style:preserve-3d;
+  transition:transform .42s cubic-bezier(.2,.8,.2,1),filter .42s ease,box-shadow .42s ease;
+}
+.card:hover{
+  transform:perspective(900px) translateY(-8px) rotateX(4deg) rotateY(-3deg) scale(1.025);
+  filter:drop-shadow(0 24px 20px rgba(0,0,0,.45)) drop-shadow(0 0 12px var(--card-glow));
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.11),inset 0 0 24px rgba(0,0,0,.42);
+}
+.card:before{
+  z-index:4;
+  background:
+    linear-gradient(128deg,rgba(255,255,255,.2),transparent 17%,transparent 70%,rgba(255,255,255,.06)),
+    linear-gradient(112deg,transparent 18%,rgba(255,255,255,.08) 42%,rgba(255,255,255,.28) 46%,rgba(255,255,255,.035) 49%,transparent 64%);
+  background-size:100% 100%,240% 100%;
+  background-position:0 0,-170% 0;
+  transition:background-position .85s ease,opacity .3s ease;
+  opacity:.5;
+}
+.card:hover:before{background-position:0 0,170% 0;opacity:.9}
+.card .photo{
+  position:absolute;
+  top:15%;
+  left:14%;
+  width:72%;
+  height:45%;
+  border:1px solid color-mix(in srgb,var(--card-metal) 60%,transparent);
+  background-color:#090c12;
+  box-shadow:0 6px 18px rgba(0,0,0,.35),inset 0 0 20px rgba(0,0,0,.25);
+}
+.card .photo:after{
+  background:linear-gradient(180deg,rgba(5,8,12,.08),transparent 35%,rgba(5,8,12,.16) 65%,rgba(5,8,12,.88));
+}
+.card .photo:before{
+  content:"";
+  position:absolute;
+  z-index:1;
+  inset:0;
+  background:linear-gradient(125deg,rgba(255,255,255,.22),transparent 35%,transparent 72%,rgba(255,255,255,.1));
+  pointer-events:none;
+}
+.card .team-photo{background:radial-gradient(ellipse,rgba(255,255,255,.1),#090c12 72%)}
+.card .team-photo img{position:relative;z-index:1;filter:drop-shadow(0 6px 12px rgba(0,0,0,.45))}
+.card .rating{
+  top:8.5%;
+  left:15%;
+  width:32px;
+  height:29px;
+  border:1px solid var(--card-metal);
+  border-radius:4px;
+  background:linear-gradient(145deg,rgba(25,30,38,.98),rgba(5,7,11,.97));
+  box-shadow:0 3px 10px rgba(0,0,0,.45),inset 0 1px rgba(255,255,255,.14);
+}
+.card .rarity{
+  top:8.5%;
+  right:15%;
+  max-width:43%;
+  padding:6px 7px;
+  border-radius:4px;
+  background:linear-gradient(145deg,rgba(25,30,38,.98),rgba(5,7,11,.97));
+  box-shadow:0 3px 10px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.12);
+}
+.card .info{
+  position:absolute;
+  top:60%;
+  bottom:15%;
+  left:14%;
+  width:72%;
+  min-height:0;
+  height:auto;
+  margin:0;
+  padding:7px 7px 5px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  border-top:1px solid var(--card-metal);
+  background:linear-gradient(180deg,var(--card-panel),rgba(7,10,15,.96));
+  box-shadow:inset 0 1px rgba(255,255,255,.1);
+}
+.card .name{
+  min-height:0;
+  max-height:2.3em;
+  overflow:hidden;
+  font-size:clamp(9px,1vw,13px);
+  line-height:1.12;
+  letter-spacing:.035em;
+  text-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+.card .year{margin-top:5px;font-size:clamp(8px,.75vw,10px);letter-spacing:.14em}
+.card .type{
+  bottom:7.5%;
+  left:23%;
+  right:23%;
+  padding:5px 4px;
+  border:1px solid var(--card-metal);
+  border-radius:3px;
+  background:linear-gradient(135deg,rgba(5,7,11,.97),rgba(18,23,31,.96));
+  box-shadow:0 3px 10px rgba(0,0,0,.4),inset 0 1px rgba(255,255,255,.1);
+  font-size:clamp(6px,.62vw,8px);
+  letter-spacing:.12em;
+}
+.card-red-neon{
+  inset:3.5%;
+  z-index:5;
+  border:1px solid color-mix(in srgb,var(--card-metal) 72%,white);
+  box-shadow:0 0 8px var(--card-glow),inset 0 0 9px rgba(255,255,255,.06);
+}
+.card:hover .card-red-neon{
+  border-color:var(--card-light);
+  box-shadow:0 0 15px var(--card-glow),inset 0 0 14px rgba(255,255,255,.12);
+}
+.card[data-tier="bronze"]{
+  --card-edge:#e19a62;
+  --card-surface:#28170f;
+  --card-accent:rgba(255,176,104,.24);
+  background:linear-gradient(145deg,#f2b477,#7b4828 10%,#21120d 27%,#3b2115 54%,#130d0b 78%,#c47d4e);
+  box-shadow:inset 0 0 0 2px rgba(30,14,8,.92),inset 0 0 20px rgba(255,166,92,.13);
+}
+.card[data-tier="gold"]{
+  --card-edge:#ffe17a;
+  --card-surface:#291b0b;
+  --card-accent:rgba(255,222,111,.35);
+  background:linear-gradient(145deg,#fff1a4,#b5802b 9%,#23170b 28%,#4a2b10 52%,#170f0a 78%,#e2b94e);
+  box-shadow:inset 0 0 0 2px rgba(35,20,6,.94),inset 0 0 24px rgba(255,207,72,.19);
+}
+.card[data-tier="platinum"]{
+  --card-edge:#e6f5ff;
+  --card-surface:#132431;
+  --card-accent:rgba(132,226,255,.34);
+  background:linear-gradient(145deg,#fff,#83bdd4 9%,#101c2a 28%,#193b4a 52%,#111b29 78%,#d0e6f2);
+  box-shadow:inset 0 0 0 2px rgba(9,20,31,.94),inset 0 0 26px rgba(121,224,255,.2);
+}
+.card[data-tier="legend"]{
+  --card-edge:#f8e3ff;
+  --card-surface:#211337;
+  --card-accent:rgba(220,122,255,.4);
+  background:linear-gradient(145deg,#fff2b1,#b88aff 8%,#1a1030 25%,#182b4b 48%,#30123d 70%,#61e8f2 88%,#ffe28a);
+  box-shadow:inset 0 0 0 2px rgba(16,9,35,.94),inset 0 0 30px rgba(160,103,255,.3);
+}
+.card[data-tier="bronze"] .card-red-neon{border-color:rgba(255,196,137,.9);box-shadow:0 0 9px rgba(238,143,75,.62),inset 0 0 8px rgba(255,173,99,.16)}
+.card[data-tier="gold"] .card-red-neon{border-color:rgba(255,235,153,.94);box-shadow:0 0 11px rgba(255,197,62,.68),inset 0 0 10px rgba(255,211,84,.17)}
+.card[data-tier="platinum"] .card-red-neon{border-color:rgba(184,243,255,.96);box-shadow:0 0 12px rgba(91,221,255,.68),inset 0 0 10px rgba(125,228,255,.18)}
+.card[data-tier="legend"] .card-red-neon{border-color:rgba(255,235,175,.98);box-shadow:0 0 15px rgba(220,122,255,.74),0 0 25px rgba(80,217,239,.25),inset 0 0 13px rgba(255,255,255,.2)}
+.card[data-tier="bronze"] .photo{border-color:rgba(255,186,129,.5)}
+.card[data-tier="gold"] .photo{border-color:rgba(255,224,133,.56)}
+.card[data-tier="platinum"] .photo{border-color:rgba(153,235,255,.7)}
+.card[data-tier="legend"] .photo{border-color:rgba(226,179,255,.75);box-shadow:0 0 16px rgba(152,109,255,.18),0 6px 18px rgba(0,0,0,.4)}
+.card[data-tier="bronze"] .info{background:linear-gradient(180deg,rgba(45,25,15,.98),rgba(19,12,10,.98))}
+.card[data-tier="gold"] .info{background:linear-gradient(180deg,rgba(52,34,11,.98),rgba(18,12,9,.98))}
+.card[data-tier="platinum"] .info{color:#effaff;background:linear-gradient(180deg,rgba(25,55,70,.98),rgba(11,24,37,.98))}
+.card[data-tier="platinum"] .year{color:#b8e8f5}
+.card[data-tier="legend"] .info{background:linear-gradient(180deg,rgba(39,20,59,.98),rgba(16,12,37,.98))}
+.card[data-tier="legend"] .year{color:#e5c7ff}
+.owned-card .card-level{
+  top:55%;
+  left:25%;
+  right:25%;
+  z-index:6;
+  padding:4px 5px;
+  border-radius:3px;
+  background:rgba(5,8,13,.92);
+  color:var(--card-light);
+  font-size:clamp(6px,.6vw,8px);
+  letter-spacing:.1em;
+  text-align:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.45);
+}
+.owned-card .info{top:62%}
+.owned-card .type{bottom:7.5%}
+.owned-card-actions button{border-radius:4px;transition:transform .2s ease,box-shadow .2s ease}
+.owned-card-actions button:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.3)}
 .toast{backdrop-filter:blur(14px)}
 .modal-box{border-radius:8px 20px 8px 20px;backdrop-filter:blur(18px)}
 .footer{border-color:rgba(166,190,216,.13);color:#8e9baa}
@@ -361,9 +544,9 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   50%{transform:translate3d(2%,-1%,0) scale(1.035);filter:blur(32px)}
   100%{transform:translate3d(-1%,2%,0) scale(1.015);filter:blur(25px)}
 }
-@keyframes telemetry-scroll{
-  from{background-position:0 0,0 0,0 0}
-  to{background-position:0 0,0 160px,160px 0}
+@keyframes neon-track-sweep{
+  0%{background-position:-170vw 0,170vw 0,-170vw 0,170vw 0,0 0,0 0,0 0}
+  100%{background-position:170vw 0,-170vw 0,170vw 0,-170vw 0,0 0,0 160px,160px 0}
 }
 @keyframes track-light{to{background-position:-200% 0}}
 @keyframes hero-scan{
@@ -420,6 +603,11 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   .collection-head{align-items:stretch}
   .collection-head .search{flex-basis:100%}
   .collection-head .filter{flex:1;min-width:0}
+}
+@media(max-width:760px){
+  .card .name{font-size:clamp(8px,2.5vw,12px)}
+  .card .year{font-size:clamp(7px,1.9vw,9px)}
+  .card .type{font-size:clamp(6px,1.7vw,8px)}
 }
 @media(prefers-reduced-motion:reduce){
   *,*:before,*:after{

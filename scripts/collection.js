@@ -2,11 +2,11 @@ function filterCards(){
  const q=(document.getElementById('search')?.value||'').toLowerCase();
  const r=document.getElementById('rarityFilter')?.value||'all';
  const s=document.getElementById('sortFilter')?.value||'rating';
- const arrSource=currentUser?userCards:[];
+ const arrSource=currentUser?userCards:cards;
  let arr=arrSource.filter(c=>(r==='all'||c.rarity===r)&&(`${c.name} ${c.short} ${c.year}`.toLowerCase().includes(q)));
  arr.sort((a,b)=>s==='rating'?b.rating-a.rating:s==='year'?b.year-a.year:a.name.localeCompare(b.name));
- const grid=document.getElementById('collectionGrid');if(grid)grid.innerHTML=arr.map(card=>cardHTML(card,true)).join('');
- const message=document.getElementById('collectionMessage');if(message)message.textContent=currentUser?(arr.length?`${arr.length} Karten in deiner Sammlung.`:'Noch keine Karten gesammelt. Öffne dein erstes Pack im Shop.'):'Melde dich an, um deine persönliche Sammlung zu sehen.';
+ const grid=document.getElementById('collectionGrid');if(grid)grid.innerHTML=arr.map(card=>cardHTML(card,Boolean(currentUser))).join('');
+ const message=document.getElementById('collectionMessage');if(message)message.textContent=currentUser?(arr.length?`${arr.length} Karten in deiner Sammlung.`:'Noch keine Karten gesammelt. Öffne dein erstes Pack im Shop.'):`${arr.length} Karten in der Katalog-Vorschau. Melde dich an, um eigene Karten zu sammeln und zu verwalten.`;
 }
 async function sellCard(instanceId){
  if(!currentUser||!backendReady())return showPage('login');
