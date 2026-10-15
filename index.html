@@ -222,6 +222,16 @@
     <button class="btn red big" id="welcomeBonusClaim" type="button" onclick="claimWelcomeBonus()">GESCHENK CLAIMEN</button>
   </div>
 </div>
+<div class="modal point-award-modal" id="pointAwardModal" role="alertdialog" aria-modal="true" aria-labelledby="pointAwardTitle" aria-describedby="pointAwardCopy">
+  <div class="modal-box point-award-box">
+    <div class="point-award-emblem" aria-hidden="true"><span>+</span></div>
+    <p class="point-award-label">F1-PUNKTE GUTGESCHRIEBEN</p>
+    <h2 id="pointAwardTitle">Punkte für dich!</h2>
+    <p class="point-award-copy" id="pointAwardCopy">Deine Punkte sind jetzt auf deinem Konto verfügbar.</p>
+    <p class="point-award-amount" id="pointAwardAmount">+0 <span>F1-PUNKTE</span></p>
+    <button class="btn red big" id="pointAwardContinue" type="button" onclick="dismissPointAwardNotification()">WEITER</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 </body>

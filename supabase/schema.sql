@@ -88,6 +88,19 @@ create table if not exists public.point_ledger (
 );
 
 alter table public.point_ledger alter column finish_position drop not null;
+do $$
+begin
+  if not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'point_ledger'
+      and column_name = 'notification_seen_at'
+  ) then
+    alter table public.point_ledger add column notification_seen_at timestamptz default now();
+    alter table public.point_ledger alter column notification_seen_at drop default;
+  end if;
+end;
+$$;
 
 create index if not exists point_ledger_owner_idx on public.point_ledger(user_id, created_at desc);
 create unique index if not exists point_ledger_user_event_unique on public.point_ledger(user_id, lower(event_name));
@@ -478,6 +491,7 @@ declare
 begin
   if v_admin_id is null or not public.is_admin() then raise exception 'Admin-Berechtigung erforderlich.'; end if;
   if p_points is null or p_points < 1 then raise exception 'Mindestens einen F1-Punkt eingeben.'; end if;
+  if p_points > 100000 then raise exception 'Pro Vergabe sind maximal 100.000 F1-Punkte erlaubt.'; end if;
   if p_event_name is null or length(trim(p_event_name)) = 0 then raise exception 'Rennen oder Event angeben.'; end if;
 
   select id into v_user_id from public.profiles where lower(email) = lower(trim(p_email));
@@ -500,12 +514,49 @@ begin
 end;
 $$;
 
+create or replace function public.claim_point_award_notifications()
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_notifications jsonb;
+begin
+  if v_user_id is null then raise exception 'Bitte zuerst anmelden.'; end if;
+
+  with pending as (
+    select id
+    from public.point_ledger
+    where user_id = v_user_id and notification_seen_at is null
+    order by created_at
+    for update skip locked
+  ), claimed as (
+    update public.point_ledger as ledger
+      set notification_seen_at = now()
+      from pending
+      where ledger.id = pending.id
+      returning ledger.points_delta, ledger.event_name, ledger.created_at
+  )
+  select coalesce(
+    jsonb_agg(jsonb_build_object('points_delta', points_delta, 'event_name', event_name) order by created_at),
+    '[]'::jsonb
+  )
+  into v_notifications
+  from claimed;
+
+  return v_notifications;
+end;
+$$;
+
 revoke all on function public.purchase_pack(text) from public, anon;
 revoke all on function public.sell_user_card(uuid) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
 revoke all on function public.convert_f1_points(bigint) from public, anon;
 revoke all on function public.admin_award_race_points(text, smallint, text) from public, anon;
 revoke all on function public.admin_award_custom_points(text, bigint, text) from public, anon;
+revoke all on function public.claim_point_award_notifications() from public, anon;
 revoke all on function public.claim_welcome_bonus() from public, anon;
 grant execute on function public.purchase_pack(text) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
@@ -513,4 +564,5 @@ grant execute on function public.upgrade_user_card(uuid) to authenticated;
 grant execute on function public.convert_f1_points(bigint) to authenticated;
 grant execute on function public.admin_award_race_points(text, smallint, text) to authenticated;
 grant execute on function public.admin_award_custom_points(text, bigint, text) to authenticated;
+grant execute on function public.claim_point_award_notifications() to authenticated;
 grant execute on function public.claim_welcome_bonus() to authenticated;

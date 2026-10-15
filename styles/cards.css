@@ -34,7 +34,7 @@
 .card:hover .card-red-neon{border-color:var(--card-light);box-shadow:0 0 15px var(--card-glow),inset 0 0 11px var(--card-glow)}
 .card .photo{height:auto;min-height:0;flex:0 0 61%;width:100%;border-radius:7px;background:#080a0d;box-shadow:inset 0 0 0 1px rgba(255,255,255,.16),0 5px 14px rgba(0,0,0,.38)}
 .card .photo:after{background:linear-gradient(180deg,rgba(4,6,10,.02) 46%,rgba(4,6,10,.7) 100%);pointer-events:none}
-.card .photo-image{display:block;width:100%;height:100%;object-fit:cover;object-position:center 38%;filter:saturate(1.05) contrast(1.04)}
+.card .photo-image{display:block;width:100%;height:100%;object-fit:cover;object-position:center 12%;filter:saturate(1.05) contrast(1.04)}
 .card .driver-photo,.card .legacy-driver-photo{background-image:none!important;background-size:cover;background-position:center}
 .card .team-photo{background:radial-gradient(ellipse,rgba(255,255,255,.1),transparent 70%),#080a0d}
 .card .team-photo img{width:84%;height:72%;object-fit:contain}

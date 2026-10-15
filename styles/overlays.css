@@ -40,3 +40,20 @@
 @keyframes welcome-coin-arrive{from{opacity:0;transform:rotateY(100deg) scale(.65)}to{opacity:1;transform:rotateY(0) scale(1)}}
 @media(max-width:520px){.welcome-bonus-box{padding:28px 20px}.welcome-bonus-amount{font-size:30px}}
 @media(prefers-reduced-motion:reduce){.welcome-bonus-box,.welcome-bonus-coin{animation-duration:.01ms;animation-iteration-count:1}}
+
+.point-award-modal{z-index:190}
+.point-award-box{position:relative;width:min(440px,100%);overflow:hidden;padding:34px 30px;text-align:center;border-color:rgba(87,218,255,.62);animation:point-award-arrive .5s cubic-bezier(.2,.8,.2,1) both}
+.point-award-box:before{content:"";position:absolute;inset:0 0 auto;height:48%;background:radial-gradient(ellipse at 50% 0,rgba(45,193,255,.14),transparent 72%);pointer-events:none}
+.point-award-emblem{position:relative;width:78px;height:78px;margin:0 auto 18px;display:grid;place-items:center;border:2px solid #65dfff;border-radius:50%;background:radial-gradient(circle at 35% 28%,#e5fbff,#37aaca 58%,#15566f);color:#062b39;box-shadow:0 0 30px rgba(72,207,255,.4);animation:point-award-emblem-pop .75s cubic-bezier(.2,.8,.2,1) both}
+.point-award-emblem:before{content:"";position:absolute;inset:-8px;border:1px solid rgba(101,223,255,.5);border-radius:50%;animation:point-award-ring 1.6s ease-out infinite}
+.point-award-emblem span{font-size:45px;font-weight:1000;line-height:1;text-shadow:0 1px rgba(255,255,255,.55)}
+.point-award-label{position:relative;margin:0 0 8px;color:#65dfff;font-size:10px;font-weight:900;letter-spacing:1.2px}
+.point-award-box h2{position:relative;margin:0;color:#fff;font-size:26px;line-height:1.15}
+.point-award-copy{position:relative;margin:12px 0 18px;color:#aeb4be;font-size:13px;line-height:1.5;overflow-wrap:anywhere}
+.point-award-amount{position:relative;margin:0 0 22px;color:#f4c94e;font-size:36px;font-weight:1000;line-height:1}
+.point-award-amount span{display:block;margin-top:7px;color:#fff0bd;font-size:11px}
+.point-award-box #pointAwardContinue{position:relative;width:100%}
+@keyframes point-award-arrive{from{opacity:0;transform:translateY(18px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes point-award-emblem-pop{0%{opacity:0;transform:rotateY(100deg) scale(.5)}70%{transform:rotateY(-8deg) scale(1.08)}100%{opacity:1;transform:rotateY(0) scale(1)}}
+@keyframes point-award-ring{0%{opacity:.7;transform:scale(.82)}100%{opacity:0;transform:scale(1.3)}}
+@media(max-width:520px){.point-award-box{padding:28px 20px}.point-award-amount{font-size:32px}}

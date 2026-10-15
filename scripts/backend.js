@@ -1,6 +1,10 @@
 let supabaseClient = null;
 let authMode = 'login';
 let adminPlayersPage = 0;
+let pointAwardPollTimer = null;
+let pointAwardPollUserId = null;
+let pointAwardCheckInProgress = false;
+let pendingPointAwardNotifications = [];
 const ADMIN_PLAYER_PAGE_SIZE = 30;
 
 function setAuthMessage(message, isError = false) {
@@ -50,8 +54,11 @@ async function initializeBackend() {
  const { data: { session }, error } = await supabaseClient.auth.getSession();
  if (error) displayBackendError(error);
  await applyAuthSession(session);
- supabaseClient.auth.onAuthStateChange((_event, nextSession) => {
-   window.setTimeout(() => applyAuthSession(nextSession), 0);
+ supabaseClient.auth.onAuthStateChange((event, nextSession) => {
+   window.setTimeout(async () => {
+     await applyAuthSession(nextSession);
+     if (event === 'SIGNED_IN' && nextSession?.user) showPage('dashboard');
+   }, 0);
  });
 }
 
@@ -61,6 +68,10 @@ async function applyAuthSession(session) {
  userCards = [];
  isAdmin = false;
  if (!currentUser || !supabaseClient) {
+  if (pointAwardPollTimer) window.clearInterval(pointAwardPollTimer);
+  pointAwardPollTimer = null;
+  pointAwardPollUserId = null;
+  pendingPointAwardNotifications = [];
   coins=0;points=0;
    updateAccountUI();
    render();
@@ -102,6 +113,7 @@ async function applyAuthSession(session) {
  if (currentUser) setAuthMessage(`Angemeldet als ${currentUser.email}.`);
  render();
  updateConvert();
+ startPointAwardPolling();
 }
 
 function renderRecentActivity(coinRows, pointRows) {
@@ -181,6 +193,57 @@ function showWelcomeBonus() {
  claimButton.focus();
 }
 
+function startPointAwardPolling() {
+ if (!currentUser || !supabaseClient || pointAwardPollUserId === currentUser.id) return;
+ if (pointAwardPollTimer) window.clearInterval(pointAwardPollTimer);
+ pointAwardPollUserId = currentUser.id;
+ checkPointAwardNotifications();
+ pointAwardPollTimer = window.setInterval(checkPointAwardNotifications, 5000);
+}
+
+async function checkPointAwardNotifications() {
+ if (pointAwardCheckInProgress || !currentUser || !supabaseClient) return;
+ pointAwardCheckInProgress = true;
+ const userId = currentUser.id;
+ try {
+   const { data, error } = await supabaseClient.rpc('claim_point_award_notifications');
+   if (error) {
+     displayBackendError(error);
+     if (pointAwardPollTimer) window.clearInterval(pointAwardPollTimer);
+     pointAwardPollTimer = null;
+     return;
+   }
+   if (currentUser?.id !== userId || !Array.isArray(data) || !data.length) return;
+   await refreshAccountData();
+   if (currentUser?.id !== userId) return;
+   pendingPointAwardNotifications.push(...data);
+   showNextPointAwardNotification();
+ } finally {
+   pointAwardCheckInProgress = false;
+ }
+}
+
+function showNextPointAwardNotification() {
+ const modal = document.getElementById('pointAwardModal');
+ if (!modal || modal.classList.contains('open') || !pendingPointAwardNotifications.length) return;
+ if (document.getElementById('welcomeBonusModal')?.classList.contains('open')) return;
+
+ const notifications = pendingPointAwardNotifications.splice(0);
+ const totalPoints = notifications.reduce((total, award) => total + Number(award.points_delta || 0), 0);
+ const events = [...new Set(notifications.map(award => award.event_name).filter(Boolean))];
+ document.getElementById('pointAwardAmount').textContent = `+${totalPoints.toLocaleString()}`;
+ document.getElementById('pointAwardCopy').textContent = events.length === 1
+   ? `Deine Punkte für „${events[0]}“ sind jetzt verfügbar.`
+   : 'Die gutgeschriebenen Punkte sind jetzt auf deinem Konto verfügbar.';
+ modal.classList.add('open');
+ document.getElementById('pointAwardContinue').focus();
+}
+
+function dismissPointAwardNotification() {
+ document.getElementById('pointAwardModal')?.classList.remove('open');
+ window.setTimeout(showNextPointAwardNotification, 0);
+}
+
 async function claimWelcomeBonus() {
  if (!requireBackend() || !currentUser) return;
  const modal = document.getElementById('welcomeBonusModal');
@@ -198,6 +261,7 @@ async function claimWelcomeBonus() {
 
  await refreshAccountData();
  modal.classList.remove('open');
+ showNextPointAwardNotification();
  toast(`${Number(data.coins_awarded).toLocaleString()} Coins wurden deinem Konto gutgeschrieben.`);
 }
 
@@ -358,8 +422,9 @@ async function adminSearchPlayers(page = 0) {
    const customPointsInput = document.createElement('input');
    customPointsInput.type = 'number';
    customPointsInput.min = '1';
+  customPointsInput.max = '100000';
    customPointsInput.step = '1';
-   customPointsInput.placeholder = 'F1-Punkte direkt eingeben';
+  customPointsInput.placeholder = '1 bis 100.000 F1-Punkte';
    customPointsInput.setAttribute('aria-label', `F1-Punkte für ${profile.email}`);
    const customAwardButton = document.createElement('button');
    customAwardButton.type = 'button';
@@ -411,7 +476,7 @@ async function adminAwardCustomPoints(email, eventName, pointsValue, inlineAward
  if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
  const pointsToAward = Number(pointsValue);
  const awardEvent = String(eventName ?? '').trim();
- if (!Number.isSafeInteger(pointsToAward) || pointsToAward < 1) return toast('Mindestens einen F1-Punkt als ganze Zahl eingeben.');
+ if (!Number.isSafeInteger(pointsToAward) || pointsToAward < 1 || pointsToAward > 100000) return toast('Zwischen 1 und 100.000 F1-Punkte als ganze Zahl eingeben.');
  if (!awardEvent) return toast('Rennen oder Event eingeben.');
 
  const { data, error } = await supabaseClient.rpc('admin_award_custom_points', {
