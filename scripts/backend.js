@@ -32,7 +32,7 @@ function displayBackendError(error) {
   [/password should be at least/i, 'Das Passwort muss mindestens 8 Zeichen haben.'],
   [/email not confirmed/i, 'Bitte bestätige zuerst deine E-Mail-Adresse.'],
   [/email rate limit exceeded|rate limit.*email|over_email_send_rate_limit/i, 'Supabase hat das E-Mail-Limit erreicht. Warte, bis es zurückgesetzt ist. Für weitere Nutzer richte einen eigenen SMTP-Maildienst unter Authentication → SMTP Settings ein.'],
-  [/admin_create_card|admin_grant_card|copies_remaining|legend_pack_only|schema cache.*(card|admin)/i, 'Die Admin-Kartenfunktionen fehlen in Supabase. Führe supabase/migrations/20261016_admin_card_management.sql im SQL Editor aus.'],
+  [/admin_create_card|admin_grant_card|copies_remaining|legend_pack_only|is_published|schema cache.*(card|admin)/i, 'Die aktuelle Kartenverwaltung fehlt in Supabase. Führe supabase/migrations/20261016_admin_card_management.sql im SQL Editor aus.'],
   [/failed to fetch|fetch failed/i, 'Supabase ist nicht erreichbar. Prüfe deine Projekt-URL und Internetverbindung.']
  ];
  const message = friendlyMessages.find(([pattern]) => pattern.test(rawMessage))?.[1]
@@ -68,7 +68,7 @@ async function initializeBackend() {
 async function refreshCardCatalog() {
  if (!supabaseClient) return;
  const { data, error } = await supabaseClient.from('cards')
-   .select('id,name,short_name,card_year,rating,rarity,card_type,image_url,copies_remaining')
+   .select('id,name,short_name,card_year,rating,rarity,card_type,image_url,copies_remaining,is_published')
    .order('card_year', { ascending: false });
  if (error) return displayBackendError(error);
  cards.splice(0, cards.length, ...(data || []).map(row => ({
@@ -80,7 +80,8 @@ async function refreshCardCatalog() {
    rarity: row.rarity,
    type: row.card_type,
    img: row.image_url,
-   copiesRemaining: row.copies_remaining
+   copiesRemaining: row.copies_remaining,
+   isPublished: row.is_published
  })));
  populateAdminCardOptions();
  render();
@@ -92,7 +93,8 @@ function populateAdminCardOptions() {
  select.replaceChildren(new Option('Karte auswählen …', ''));
  for (const card of cards) {
    const availability = card.copiesRemaining == null ? '' : ` · ${card.copiesRemaining} verfügbar`;
-   select.add(new Option(`${card.short} · ${card.year} · OVR ${card.rating}${availability}`, card.id));
+   const status = card.isPublished === false ? ' · ENTWURF' : '';
+   select.add(new Option(`${card.short} · ${card.year} · OVR ${card.rating}${availability}${status}`, card.id));
  }
 }
 
@@ -540,6 +542,7 @@ async function adminCreateCard() {
    type: document.getElementById('cardType').value,
    imageUrl: document.getElementById('cardImageUrl').value.trim(),
    legendPackOnly: document.getElementById('cardLegendOnly').checked,
+   isPublished: document.getElementById('cardPublished').checked,
    copiesRemaining: document.getElementById('cardCopies').value === ''
      ? null
      : Number(document.getElementById('cardCopies').value)
@@ -562,12 +565,15 @@ async function adminCreateCard() {
    p_card_type: card.type,
    p_image_url: card.imageUrl,
    p_legend_pack_only: card.legendPackOnly,
-   p_copies_remaining: card.copiesRemaining
+   p_copies_remaining: card.copiesRemaining,
+   p_is_published: card.isPublished
  });
  if (error) return displayBackendError(error);
  document.getElementById('cardCreateForm').reset();
  await refreshCardCatalog();
- toast(`${card.name} wurde im Kartenkatalog gespeichert.`);
+ toast(card.isPublished
+   ?`${card.name} wurde veröffentlicht und ist für Pack-Ziehungen freigegeben.`
+   :`${card.name} wurde als Entwurf gespeichert und ist noch nicht ziehbar.`);
 }
 
 async function adminGrantCard() {

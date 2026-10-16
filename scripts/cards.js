@@ -45,7 +45,7 @@ function renderSennaPromo(){
 		 :'Nur vier Exemplare insgesamt.';
 	 if(packNotice)packNotice.textContent=Number.isFinite(remaining)&&remaining===0
 		 ?'Die limitierte Senna-Karte ist ausverkauft.'
-		 :'Chance auf eines der vier Senna-Exemplare.';
+		 :'Senna-Special: 1% Chance pro Legenden-Pack.';
  }
 }
 function render(){
@@ -53,6 +53,8 @@ function render(){
  const currentTeams=cards.filter(card=>card.year===2026&&card.type==='TEAM').slice(0,2);
  const featuredCards=[...currentCars,...currentTeams];
  document.getElementById('homeCards').innerHTML=(featuredCards.length?featuredCards:cards.slice(0,5)).map(cardHTML).join('');
+ const catalog=document.getElementById('catalogCards');
+ if(catalog)catalog.innerHTML=cards.filter(card=>card.isPublished!==false).map(cardHTML).join('');
  renderSennaPromo();
  const dashboardCards=currentUser?userCards.slice(0,5):cards.slice(0,5);
  document.getElementById('dashCards').innerHTML=dashboardCards.map(card=>cardHTML(card)).join('');

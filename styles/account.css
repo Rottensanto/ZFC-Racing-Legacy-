@@ -57,6 +57,7 @@
 .admin-card-form .admin-card-image,.admin-card-submit{grid-column:1/-1}
 .admin-card-form .admin-card-checkbox{display:flex;align-items:center;gap:9px}
 .admin-card-form .admin-card-checkbox input{width:17px;height:17px;margin:0;accent-color:#ef5962}
+.catalog-section-head{margin-top:42px}
 .admin-card-assign{margin-top:24px;padding-top:20px;border-top:1px solid #30333a}
 .admin-card-assign h4{margin:0 0 8px;color:#fff;font-size:15px}
 .admin-card-assign .admin-card-form{margin-top:14px}

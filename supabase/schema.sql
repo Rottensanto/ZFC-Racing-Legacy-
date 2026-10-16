@@ -36,6 +36,7 @@ create table if not exists public.cards (
   image_url text not null,
   legend_pack_only boolean not null default false,
   copies_remaining integer check (copies_remaining is null or copies_remaining >= 0),
+  is_published boolean not null default true,
   tier text generated always as (
     case
       when rating >= 96 then 'legend'
@@ -50,6 +51,8 @@ alter table public.cards
   add column if not exists legend_pack_only boolean not null default false;
 alter table public.cards
   add column if not exists copies_remaining integer check (copies_remaining is null or copies_remaining >= 0);
+alter table public.cards
+  add column if not exists is_published boolean not null default true;
 
 create table if not exists public.pack_catalog (
   tier text primary key check (tier in ('bronze', 'platinum', 'gold', 'legend')),
@@ -202,7 +205,7 @@ create policy profiles_read_owner_or_admin on public.profiles
 
 drop policy if exists cards_read_catalog on public.cards;
 create policy cards_read_catalog on public.cards
-  for select to anon, authenticated using (true);
+  for select to anon, authenticated using (is_published or public.is_admin());
 
 drop policy if exists packs_read_catalog on public.pack_catalog;
 create policy packs_read_catalog on public.pack_catalog
@@ -251,7 +254,11 @@ on conflict (id) do update set
 
 update public.cards
 set legend_pack_only = true,
-    copies_remaining = greatest(0, 4 - (select count(*) from public.user_cards where card_id = 'SENNA'))
+    copies_remaining = least(
+      coalesce(copies_remaining, 4),
+      greatest(0, 4 - (select count(*) from public.user_cards where card_id = 'SENNA'))
+    ),
+    is_published = true
 where id = 'SENNA';
 
 insert into public.cards (id, name, short_name, card_year, rating, rarity, card_type, image_url) values
@@ -346,6 +353,8 @@ insert into public.pack_catalog (tier, name, price) values
   ('legend', 'LEGEND PACK', 17000)
 on conflict (tier) do update set name = excluded.name, price = excluded.price, enabled = true;
 
+drop function if exists public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer);
+
 create or replace function public.admin_create_card(
   p_id text,
   p_name text,
@@ -356,7 +365,8 @@ create or replace function public.admin_create_card(
   p_card_type text,
   p_image_url text,
   p_legend_pack_only boolean default false,
-  p_copies_remaining integer default null
+  p_copies_remaining integer default null,
+  p_is_published boolean default true
 )
 returns jsonb
 language plpgsql
@@ -383,10 +393,10 @@ begin
   end if;
 
   insert into public.cards (
-    id, name, short_name, card_year, rating, rarity, card_type, image_url, legend_pack_only, copies_remaining
+    id, name, short_name, card_year, rating, rarity, card_type, image_url, legend_pack_only, copies_remaining, is_published
   ) values (
     v_id, trim(p_name), trim(p_short_name), p_year, p_rating, p_rarity, p_card_type,
-    trim(p_image_url), coalesce(p_legend_pack_only, false), p_copies_remaining
+    trim(p_image_url), coalesce(p_legend_pack_only, false), p_copies_remaining, coalesce(p_is_published, true)
   )
   on conflict (id) do update set
     name = excluded.name,
@@ -397,7 +407,8 @@ begin
     card_type = excluded.card_type,
     image_url = excluded.image_url,
     legend_pack_only = excluded.legend_pack_only,
-    copies_remaining = excluded.copies_remaining;
+    copies_remaining = excluded.copies_remaining,
+    is_published = excluded.is_published;
 
   return jsonb_build_object('id', v_id, 'name', trim(p_name));
 end;
@@ -459,17 +470,24 @@ declare
   v_catalog_id text;
   v_instance_id uuid;
   v_instances uuid[] := array[]::uuid[];
+  v_drawn_card_ids text[] := array[]::text[];
   v_index integer;
   v_card_count integer;
   v_roll double precision;
   v_target_tier text;
   v_candidate_id text;
   v_copies_remaining integer;
+  v_special_draw boolean;
+  v_special_slot integer;
 begin
   if v_user_id is null then raise exception 'Bitte zuerst anmelden.'; end if;
   select price into v_price from public.pack_catalog where pack_catalog.tier = p_tier and enabled;
   if v_price is null then raise exception 'Dieses Pack ist nicht verfügbar.'; end if;
   v_card_count := case when p_tier = 'gold_double' then 10 else 5 end;
+  v_special_draw := p_tier = 'legend' and random() < 0.01;
+  if v_special_draw then
+    v_special_slot := floor(random() * v_card_count)::integer + 1;
+  end if;
 
   update public.profiles as p
     set coins = p.coins - v_price,
@@ -482,45 +500,75 @@ begin
     values (v_user_id, -v_price, 'pack_purchase', jsonb_build_object('tier', p_tier));
 
   for v_index in 1..v_card_count loop
-    v_roll := random() * 100;
-    case p_tier
-      when 'bronze' then
-        v_target_tier := case when v_roll < 92 then 'bronze' else 'gold' end;
-      when 'gold' then
-        v_target_tier := case when v_roll < 92 then 'gold' when v_roll < 99 then 'platinum' else 'legend' end;
-      when 'gold_double' then
-        v_target_tier := case when v_roll < 96.5 then 'gold' when v_roll < 99.7 then 'platinum' else 'legend' end;
-      when 'platinum' then
-        v_target_tier := case when v_roll < 15 then 'gold' when v_roll < 95 then 'platinum' else 'legend' end;
-      when 'legend' then
-        v_target_tier := case when v_roll < 5 then 'gold' when v_roll < 35 then 'platinum' else 'legend' end;
-    end case;
+    v_catalog_id := null;
+    if v_special_draw and v_index = v_special_slot then
+      update public.cards
+        set copies_remaining = copies_remaining - 1
+        where id = 'SENNA'
+          and is_published
+          and legend_pack_only
+          and copies_remaining > 0
+        returning id into v_catalog_id;
+    end if;
 
-    loop
-      v_catalog_id := null;
-      select c.id, c.copies_remaining
-        into v_candidate_id, v_copies_remaining
-        from public.cards as c
-        where c.tier = v_target_tier
-          and (not c.legend_pack_only or p_tier = 'legend')
-          and (c.copies_remaining is null or c.copies_remaining > 0)
-        order by random()
-        limit 1;
-      if not found then raise exception 'Für diese Pack-Stufe sind keine Karten verfügbar.'; end if;
+    if v_catalog_id is null then
+      v_roll := random() * 100;
+      case p_tier
+        when 'bronze' then
+          v_target_tier := case when v_roll < 92 then 'bronze' else 'gold' end;
+        when 'gold' then
+          v_target_tier := case when v_roll < 92 then 'gold' when v_roll < 99 then 'platinum' else 'legend' end;
+        when 'gold_double' then
+          v_target_tier := case when v_roll < 96.5 then 'gold' when v_roll < 99.7 then 'platinum' else 'legend' end;
+        when 'platinum' then
+          v_target_tier := case when v_roll < 15 then 'gold' when v_roll < 95 then 'platinum' else 'legend' end;
+        when 'legend' then
+          v_target_tier := case when v_roll < 5 then 'gold' when v_roll < 35 then 'platinum' else 'legend' end;
+      end case;
 
-      if v_copies_remaining is null then
-        v_catalog_id := v_candidate_id;
-      else
-        update public.cards
-          set copies_remaining = copies_remaining - 1
-          where id = v_candidate_id and copies_remaining > 0
-          returning id into v_catalog_id;
-      end if;
-      exit when v_catalog_id is not null;
-    end loop;
+      loop
+        v_catalog_id := null;
+        select c.id, c.copies_remaining
+          into v_candidate_id, v_copies_remaining
+          from public.cards as c
+          where case v_target_tier
+              when 'legend' then c.tier in ('legend', 'platinum', 'gold', 'bronze')
+              when 'platinum' then c.tier in ('platinum', 'gold', 'bronze')
+              when 'gold' then c.tier in ('gold', 'bronze')
+              else c.tier = 'bronze'
+            end
+            and c.id <> 'SENNA'
+            and c.is_published
+            and (not c.legend_pack_only or p_tier = 'legend')
+            and (c.copies_remaining is null or c.copies_remaining > 0)
+            and not (c.id = any(v_drawn_card_ids))
+          order by case c.tier
+            when v_target_tier then 0
+            when 'platinum' then 1
+            when 'gold' then 2
+            else 3
+          end, random()
+          limit 1;
+        if not found then
+          raise exception 'Für dieses Pack sind nicht genügend unterschiedliche veröffentlichte Karten verfügbar.';
+        end if;
+
+        if v_copies_remaining is null then
+          v_catalog_id := v_candidate_id;
+        else
+          update public.cards
+            set copies_remaining = copies_remaining - 1
+            where id = v_candidate_id and copies_remaining > 0
+            returning id into v_catalog_id;
+        end if;
+        exit when v_catalog_id is not null;
+      end loop;
+    end if;
+
     insert into public.user_cards(user_id, card_id)
       values (v_user_id, v_catalog_id) returning id into v_instance_id;
     v_instances := array_append(v_instances, v_instance_id);
+    v_drawn_card_ids := array_append(v_drawn_card_ids, v_catalog_id);
   end loop;
 
   return query
@@ -751,7 +799,7 @@ end;
 $$;
 
 revoke all on function public.purchase_pack(text) from public, anon;
-revoke all on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer) from public, anon;
+revoke all on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer, boolean) from public, anon;
 revoke all on function public.admin_grant_card(text, text) from public, anon;
 revoke all on function public.sell_user_card(uuid) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
@@ -761,7 +809,7 @@ revoke all on function public.admin_award_custom_points(text, bigint, text) from
 revoke all on function public.claim_point_award_notifications() from public, anon;
 revoke all on function public.claim_welcome_bonus() from public, anon;
 grant execute on function public.purchase_pack(text) to authenticated;
-grant execute on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer) to authenticated;
+grant execute on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer, boolean) to authenticated;
 grant execute on function public.admin_grant_card(text, text) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
 grant execute on function public.upgrade_user_card(uuid) to authenticated;
