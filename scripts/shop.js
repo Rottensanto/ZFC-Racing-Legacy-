@@ -12,7 +12,7 @@ async function buyPack(){
  if(!currentUser||!backendReady())return showPage('login');
  const {data,error}=await supabaseClient.rpc('purchase_pack',{p_tier:selectedPack.type});
  if(error){document.getElementById('purchaseMessage').innerHTML=`<div class="success error">${error.message}</div>`;return}
- const openedCards=(data||[]).map(row=>({instanceId:row.instance_id,name:row.card_name,short:row.short_name,year:row.card_year,rating:row.rating,rarity:row.rarity,type:row.card_type,img:row.image_url,level:row.level}));
+ const openedCards=(data||[]).map(row=>({instanceId:row.instance_id,name:row.card_name,short:row.short_name,year:row.card_year,rating:row.rating,rarity:row.rarity,type:row.card_type,img:row.image_url,level:row.level,tier:row.tier}));
  closeModal();
  await refreshAccountData();
  await refreshCardCatalog();

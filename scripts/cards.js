@@ -2,6 +2,7 @@ function escapeCardText(value){
  return String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 }
 function cardTier(c){
+ if(['bronze','gold','platinum','legend'].includes(c.tier))return c.tier;
  if(c.rating>=96)return 'legend';
  if(c.rating>=90)return 'platinum';
  if(c.rating>=85)return 'gold';
@@ -26,9 +27,11 @@ function cardHTML(c, showSale = false){
  const saleEstimate=tierBase+(c.rating*5)+((level-1)*75);
  const levelMarkup=showSale?`<div class="card-level">LEVEL ${level}</div>`:'';
  const actionMarkup=showSale?`<div class="owned-card-actions">${level<10?`<button class="upgrade-card" onclick="event.stopPropagation();upgradeCard('${c.instanceId}')">LEVEL UP · ${(level*300).toLocaleString()} C</button>`:''}<button class="sell-card" onclick="event.stopPropagation();sellCard('${c.instanceId}')">VERKAUFEN · ${saleEstimate.toLocaleString()} C</button></div>`:'';
- const photoMarkup=cardType==='TEAM'
-	 ?`<div class="photo team-photo"><img src="${image}" alt="${name} Logo" loading="lazy"></div>`
-	 :`<div class="photo ${photoClass}"><img class="photo-image" src="${image}" alt="${name}" loading="lazy"></div>`;
+ const photoMarkup=image
+	 ?cardType==='TEAM'
+	  ?`<div class="photo team-photo"><img src="${image}" alt="${name} Logo" loading="lazy"></div>`
+	  :`<div class="photo ${photoClass}"><img class="photo-image" src="${image}" alt="${name}" loading="lazy"></div>`
+	 :`<div class="photo ${photoClass} card-photo-empty"><span>Bild auswählen</span></div>`;
  const cardMarkup=`<div class="card ${c.rarity} tier-${tier}${livery?` livery-${livery}`:''}${showSale?' owned-card':''}" data-tier="${tier}" data-card-type="${dataType}"><span class="card-red-neon" aria-hidden="true"></span><div class="card-media">${photoMarkup}<div class="rating"><span>OVR</span><b>${c.rating}</b></div><div class="rarity">${category}</div>${levelMarkup}</div><div class="info"><div class="name">${short}</div><div class="year">${name} · ${c.year}</div></div><div class="card-specs"><div><span>RATING</span><b>${c.rating}</b></div><div><span>SAISON</span><b>${c.year}</b></div><div><span>KARTE</span><b>${category}</b></div><div><span>STUFE</span><b>${tier.toUpperCase()}</b></div></div></div>`;
  return showSale?`<div class="owned-card-item">${cardMarkup}${actionMarkup}</div>`:cardMarkup;
 }

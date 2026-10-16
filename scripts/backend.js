@@ -5,6 +5,7 @@ let pointAwardPollTimer = null;
 let pointAwardPollUserId = null;
 let pointAwardCheckInProgress = false;
 let pendingPointAwardNotifications = [];
+let cardPreviewObjectUrl = null;
 const ADMIN_PLAYER_PAGE_SIZE = 30;
 
 function setAuthMessage(message, isError = false) {
@@ -32,7 +33,7 @@ function displayBackendError(error) {
   [/password should be at least/i, 'Das Passwort muss mindestens 8 Zeichen haben.'],
   [/email not confirmed/i, 'Bitte bestätige zuerst deine E-Mail-Adresse.'],
   [/email rate limit exceeded|rate limit.*email|over_email_send_rate_limit/i, 'Supabase hat das E-Mail-Limit erreicht. Warte, bis es zurückgesetzt ist. Für weitere Nutzer richte einen eigenen SMTP-Maildienst unter Authentication → SMTP Settings ein.'],
-  [/admin_create_card|admin_grant_card|copies_remaining|legend_pack_only|is_published|schema cache.*(card|admin)/i, 'Die aktuelle Kartenverwaltung fehlt in Supabase. Führe supabase/migrations/20261016_admin_card_management.sql im SQL Editor aus.'],
+  [/admin_create_card|admin_grant_card|copies_remaining|legend_pack_only|is_published|schema cache.*(card|admin)|column .*tier|card-images/i, 'Die aktuelle Kartenverwaltung fehlt in Supabase. Führe supabase/migrations/20261016_admin_card_management.sql und danach supabase/migrations/20261016_card_tier_preview_and_image_upload.sql im SQL Editor aus.'],
   [/failed to fetch|fetch failed/i, 'Supabase ist nicht erreichbar. Prüfe deine Projekt-URL und Internetverbindung.']
  ];
  const message = friendlyMessages.find(([pattern]) => pattern.test(rawMessage))?.[1]
@@ -68,7 +69,7 @@ async function initializeBackend() {
 async function refreshCardCatalog() {
  if (!supabaseClient) return;
  const { data, error } = await supabaseClient.from('cards')
-   .select('id,name,short_name,card_year,rating,rarity,card_type,image_url,copies_remaining,is_published')
+   .select('id,name,short_name,card_year,rating,rarity,card_type,image_url,copies_remaining,is_published,tier')
    .order('card_year', { ascending: false });
  if (error) return displayBackendError(error);
  cards.splice(0, cards.length, ...(data || []).map(row => ({
@@ -81,7 +82,8 @@ async function refreshCardCatalog() {
    type: row.card_type,
    img: row.image_url,
    copiesRemaining: row.copies_remaining,
-   isPublished: row.is_published
+   isPublished: row.is_published,
+   tier: row.tier
  })));
  populateAdminCardOptions();
  render();
@@ -136,7 +138,8 @@ async function applyAuthSession(session) {
    rating: row.card.rating,
    rarity: row.card.rarity,
    type: row.card.card_type,
-   img: row.card.image_url
+   img: row.card.image_url,
+   tier: row.card.tier
  }));
  if (adminResult.error) displayBackendError(adminResult.error);
  else isAdmin = adminResult.data === true;
@@ -485,6 +488,72 @@ function adminNextPlayersPage() {
  return adminSearchPlayers(adminPlayersPage + 1);
 }
 
+function initializeAdminCardPreview() {
+ const form = document.getElementById('cardCreateForm');
+ if (!form) return;
+ form.querySelectorAll('input:not([type="file"]),select').forEach(input => {
+   input.addEventListener('input', updateAdminCardPreview);
+   input.addEventListener('change', updateAdminCardPreview);
+ });
+ document.getElementById('cardImageFile').addEventListener('change', event => {
+   if (cardPreviewObjectUrl) URL.revokeObjectURL(cardPreviewObjectUrl);
+   const file = event.target.files?.[0];
+   cardPreviewObjectUrl = file ? URL.createObjectURL(file) : null;
+   document.getElementById('cardImageStatus').textContent = file
+     ? `${file.name} · ${(file.size / 1024 / 1024).toFixed(1)} MB`
+     : 'JPG, PNG, WebP oder GIF · maximal 8 MB';
+   updateAdminCardPreview();
+ });
+ form.querySelectorAll('input[name="cardImageSource"]').forEach(input => {
+   input.addEventListener('change', updateCardImageSource);
+ });
+ form.addEventListener('reset', () => {
+   if (cardPreviewObjectUrl) URL.revokeObjectURL(cardPreviewObjectUrl);
+   cardPreviewObjectUrl = null;
+   window.setTimeout(() => {
+     document.getElementById('cardImageStatus').textContent = 'JPG, PNG, WebP oder GIF · maximal 8 MB';
+     updateCardImageSource();
+     updateAdminCardPreview();
+   }, 0);
+ });
+ updateCardImageSource();
+ updateAdminCardPreview();
+}
+
+function updateCardImageSource() {
+ const useFile = document.getElementById('cardImageSourceFile').checked;
+ const urlField = document.getElementById('cardImageUrlField');
+ const fileField = document.getElementById('cardImageFileField');
+ const urlInput = document.getElementById('cardImageUrl');
+ urlField.classList.toggle('hidden', useFile);
+ fileField.classList.toggle('hidden', !useFile);
+ urlInput.required = !useFile;
+ updateAdminCardPreview();
+}
+
+function updateAdminCardPreview() {
+ const target = document.getElementById('cardPreview');
+ if (!target) return;
+ const imageUrl = document.getElementById('cardImageSourceFile').checked
+   ? cardPreviewObjectUrl
+   : document.getElementById('cardImageUrl').value.trim();
+ const card = {
+   name: document.getElementById('cardName').value.trim() || 'Kartenvorschau',
+   short: document.getElementById('cardShortName').value.trim() || 'NEUE KARTE',
+   year: Number(document.getElementById('cardYear').value) || new Date().getFullYear(),
+   rating: Number(document.getElementById('cardRating').value) || 1,
+   tier: document.getElementById('cardTier').value,
+   rarity: document.getElementById('cardRarity').value,
+   type: document.getElementById('cardType').value,
+   img: imageUrl
+ };
+ target.innerHTML = cardHTML(card);
+ const image = target.querySelector('.photo img');
+ if (image) image.addEventListener('error', () => {
+   document.getElementById('cardImageStatus').textContent = 'Das Bild konnte nicht geladen werden. Bitte URL oder Datei prüfen.';
+ });
+}
+
 async function adminAwardRacePoints(emailOverride, eventOverride, positionOverride, inlineAward) {
  if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
  const email = String(emailOverride ?? document.getElementById('awardEmail').value).trim();
@@ -532,12 +601,24 @@ async function adminAwardCustomPoints(email, eventName, pointsValue, inlineAward
 
 async function adminCreateCard() {
  if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
+ const useFile = document.getElementById('cardImageSourceFile').checked;
+ const imageFile = document.getElementById('cardImageFile').files?.[0] || null;
+ const allowedImageTypes = {
+   'image/jpeg': 'jpg',
+   'image/png': 'png',
+   'image/webp': 'webp',
+   'image/gif': 'gif'
+ };
+ if (useFile && !imageFile) return toast('Bitte eine Bilddatei auswählen.');
+ if (useFile && !allowedImageTypes[imageFile.type]) return toast('Bitte ein JPG-, PNG-, WebP- oder GIF-Bild auswählen.');
+ if (useFile && imageFile.size > 8 * 1024 * 1024) return toast('Das Bild darf höchstens 8 MB groß sein.');
  const card = {
    id: document.getElementById('cardId').value.trim().toUpperCase(),
    name: document.getElementById('cardName').value.trim(),
    shortName: document.getElementById('cardShortName').value.trim(),
    year: Number(document.getElementById('cardYear').value),
    rating: Number(document.getElementById('cardRating').value),
+   tier: document.getElementById('cardTier').value,
    rarity: document.getElementById('cardRarity').value,
    type: document.getElementById('cardType').value,
    imageUrl: document.getElementById('cardImageUrl').value.trim(),
@@ -551,9 +632,20 @@ async function adminCreateCard() {
  if (!card.name || !card.shortName || !Number.isInteger(card.year) || !Number.isInteger(card.rating)) {
    return toast('Bitte Name, Kurzname, Saison und Rating vollständig ausfüllen.');
  }
- if (!/^https?:\/\//i.test(card.imageUrl)) return toast('Bitte eine Bild-URL mit http:// oder https:// angeben.');
+ if (!useFile && !/^https?:\/\//i.test(card.imageUrl)) return toast('Bitte eine Bild-URL mit http:// oder https:// angeben.');
  if (card.copiesRemaining !== null && (!Number.isInteger(card.copiesRemaining) || card.copiesRemaining < 1)) {
    return toast('Das Kartenlimit muss eine positive ganze Zahl sein oder leer bleiben.');
+ }
+ let uploadedPath = null;
+ if (useFile) {
+   uploadedPath = `${currentUser.id}/${crypto.randomUUID()}.${allowedImageTypes[imageFile.type]}`;
+   const { error: uploadError } = await supabaseClient.storage.from('card-images').upload(uploadedPath, imageFile, {
+     cacheControl: '31536000',
+     contentType: imageFile.type,
+     upsert: false
+   });
+   if (uploadError) return displayBackendError(uploadError);
+   card.imageUrl = supabaseClient.storage.from('card-images').getPublicUrl(uploadedPath).data.publicUrl;
  }
  const { error } = await supabaseClient.rpc('admin_create_card', {
    p_id: card.id,
@@ -561,6 +653,7 @@ async function adminCreateCard() {
    p_short_name: card.shortName,
    p_year: card.year,
    p_rating: card.rating,
+   p_tier: card.tier,
    p_rarity: card.rarity,
    p_card_type: card.type,
    p_image_url: card.imageUrl,
@@ -568,7 +661,14 @@ async function adminCreateCard() {
    p_copies_remaining: card.copiesRemaining,
    p_is_published: card.isPublished
  });
- if (error) return displayBackendError(error);
+ if (error) {
+   displayBackendError(error);
+   if (uploadedPath) {
+     const { error: cleanupError } = await supabaseClient.storage.from('card-images').remove([uploadedPath]);
+     if (cleanupError) displayBackendError(cleanupError);
+   }
+   return;
+ }
  document.getElementById('cardCreateForm').reset();
  await refreshCardCatalog();
  toast(card.isPublished

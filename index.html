@@ -181,20 +181,37 @@
       <div class="panel admin-card-panel">
         <h3>Komplette Karte erstellen</h3>
         <p class="admin-note">Karte erstellen und direkt veröffentlichen, damit sie in Packs gezogen werden kann. Entwürfe bleiben bis zur Veröffentlichung außerhalb des öffentlichen Katalogs und der Ziehungen.</p>
-        <form id="cardCreateForm" class="admin-card-form" onsubmit="event.preventDefault();adminCreateCard()">
-          <label>Karten-ID<input id="cardId" required maxlength="64" placeholder="SENNA-1991-ALT"></label>
-          <label>Kartenname<input id="cardName" required maxlength="120" placeholder="Ayrton Senna · Weltmeister 1991"></label>
-          <label>Kurzname<input id="cardShortName" required maxlength="40" placeholder="SENNA 1991"></label>
-          <label>Saison / Jahr<input id="cardYear" type="number" min="1900" max="2100" required value="1991"></label>
-          <label>Rating (1–100)<input id="cardRating" type="number" min="1" max="100" required value="90"></label>
-          <label>Seltenheit<select id="cardRarity" required><option value="rare">Rare</option><option value="epic">Epic</option><option value="icon">Icon</option><option value="legend">Legend</option></select></label>
-          <label>Kartentyp<select id="cardType" required><option value="DRIVER">Fahrer</option><option value="CAR">Auto / Livery</option><option value="TEAM">Team</option><option value="TRACK">Strecke</option></select></label>
-          <label class="admin-card-image">Bild-URL<input id="cardImageUrl" type="url" required placeholder="https://…"></label>
-          <label class="admin-card-limit">Verfügbare Exemplare<input id="cardCopies" type="number" min="1" max="100000" placeholder="Leer = unbegrenzt"></label>
-          <label class="admin-card-checkbox"><input id="cardLegendOnly" type="checkbox">Nur im Legenden-Pack verfügbar</label>
-          <label class="admin-card-checkbox"><input id="cardPublished" type="checkbox" checked>Im Katalog veröffentlichen und für Ziehungen freigeben</label>
-          <button class="btn red admin-card-submit" type="submit">KARTE ERSTELLEN / AKTUALISIEREN</button>
-        </form>
+        <div class="admin-card-editor">
+          <form id="cardCreateForm" class="admin-card-form" onsubmit="event.preventDefault();adminCreateCard()">
+            <label>Karten-ID<input id="cardId" required maxlength="64" placeholder="SENNA-1991-ALT"></label>
+            <label>Kartenname<input id="cardName" required maxlength="120" placeholder="Ayrton Senna · Weltmeister 1991"></label>
+            <label>Kurzname<input id="cardShortName" required maxlength="40" placeholder="SENNA 1991"></label>
+            <label>Saison / Jahr<input id="cardYear" type="number" min="1900" max="2100" required value="1991"></label>
+            <label>Rating (1–100)<input id="cardRating" type="number" min="1" max="100" required value="90"></label>
+            <label>Kartenstufe<select id="cardTier" required><option value="bronze">Bronze</option><option value="gold">Gold</option><option value="platinum" selected>Platinum</option><option value="legend">Legend</option></select></label>
+            <label>Seltenheit<select id="cardRarity" required><option value="rare">Rare</option><option value="epic">Epic</option><option value="icon">Icon</option><option value="legend">Legend</option></select></label>
+            <label>Kartentyp<select id="cardType" required><option value="DRIVER">Fahrer</option><option value="CAR">Auto / Livery</option><option value="TEAM">Team</option><option value="TRACK">Strecke</option></select></label>
+            <fieldset class="admin-card-image">
+              <legend>Bild für die Karte</legend>
+              <div class="admin-card-image-modes">
+                <label><input type="radio" name="cardImageSource" id="cardImageSourceUrl" value="url" checked> Bild-URL</label>
+                <label><input type="radio" name="cardImageSource" id="cardImageSourceFile" value="file"> Datei hochladen</label>
+              </div>
+              <label id="cardImageUrlField">Bild-URL<input id="cardImageUrl" type="url" required placeholder="https://…"></label>
+              <label id="cardImageFileField" class="hidden">Bilddatei<input id="cardImageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"></label>
+              <small id="cardImageStatus" class="admin-note" role="status">JPG, PNG, WebP oder GIF · maximal 8 MB</small>
+            </fieldset>
+            <label class="admin-card-limit">Verfügbare Exemplare<input id="cardCopies" type="number" min="1" max="100000" placeholder="Leer = unbegrenzt"></label>
+            <label class="admin-card-checkbox"><input id="cardLegendOnly" type="checkbox">Nur im Legenden-Pack verfügbar</label>
+            <label class="admin-card-checkbox"><input id="cardPublished" type="checkbox" checked>Im Katalog veröffentlichen und für Ziehungen freigeben</label>
+            <button class="btn red admin-card-submit" type="submit">KARTE ERSTELLEN / AKTUALISIEREN</button>
+          </form>
+          <aside class="admin-card-preview" aria-label="Kartenvorschau">
+            <h4>Live-Vorschau</h4>
+            <div id="cardPreview"></div>
+            <p class="admin-note">Die Vorschau verwendet dasselbe Kartendesign wie Katalog und Sammlung.</p>
+          </aside>
+        </div>
         <div class="admin-card-assign">
           <h4>Karte einer Spielersammlung hinzufügen</h4>
           <p class="admin-note">Wähle eine Katalogkarte und trage die Konto-E-Mail des Spielers ein. Die Karte wird sofort in seine Sammlung gelegt.</p>

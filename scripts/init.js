@@ -19,4 +19,5 @@ playZfcOpening();
 document.getElementById('purchaseModal').addEventListener('click',e=>{if(e.target.id==='purchaseModal')closeModal()});
 document.getElementById('pointAwardModal').addEventListener('click',e=>{if(e.target.id==='pointAwardModal')dismissPointAwardNotification()});
 render();updateConvert();
+initializeAdminCardPreview();
 initializeBackend();

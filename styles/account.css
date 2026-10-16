@@ -51,10 +51,24 @@
 .owned-card-actions .upgrade-card{border-color:#e6bd4a;background:#241c0d;color:#fff0bd}
 .owned-card .sell-card:hover{background:#b80c20}
 .admin-card-panel{grid-column:1/-1}
+.admin-card-editor{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(180px,.65fr);gap:20px;align-items:start}
 .admin-card-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .admin-card-form label{display:grid;gap:6px;color:#c5cad2;font-size:11px;font-weight:800}
 .admin-card-form input,.admin-card-form select{min-width:0;width:100%;padding:11px;background:#090a0c;border:1px solid #30333a;border-radius:6px;color:#fff}
 .admin-card-form .admin-card-image,.admin-card-submit{grid-column:1/-1}
+.admin-card-image{min-width:0;margin:0;padding:10px;border:1px solid #30333a;border-radius:6px}
+.admin-card-image legend{padding:0 5px;color:#c5cad2;font-size:11px;font-weight:800}
+.admin-card-image-modes{display:flex;gap:18px;flex-wrap:wrap;margin:2px 0 10px}
+.admin-card-form .admin-card-image-modes label{display:flex;align-items:center;gap:7px}
+.admin-card-form .admin-card-image-modes input{width:16px;height:16px;margin:0;accent-color:#ef5962}
+.admin-card-form .admin-card-image #cardImageFile{padding:8px}
+.admin-card-image .admin-note{display:block;margin-top:8px}
+.admin-card-preview{display:grid;justify-items:center;gap:8px;min-width:0}
+.admin-card-preview h4{margin:0;color:#fff;font-size:13px}
+#cardPreview{width:min(100%,220px)}
+#cardPreview .card{width:100%;cursor:default}
+#cardPreview .card:hover{transform:none}
+.card-photo-empty{display:grid;place-items:center;color:#9aa0aa;font-size:11px;font-weight:800}
 .admin-card-form .admin-card-checkbox{display:flex;align-items:center;gap:9px}
 .admin-card-form .admin-card-checkbox input{width:17px;height:17px;margin:0;accent-color:#ef5962}
 .catalog-section-head{margin-top:42px}
@@ -72,4 +86,4 @@
 .senna-promo-card{width:min(100%,210px);margin:auto}
 .legend-pack-senna{color:#ffdf8b!important;font-size:10px!important;line-height:1.45}
 @media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.admin-inline-row{grid-template-columns:1fr}.admin-user-identity{grid-template-columns:1fr}.admin-user-identity span{text-align:left}}
-@media(max-width:760px){.admin-card-panel{grid-column:auto}.admin-card-form{grid-template-columns:1fr}.admin-card-form .admin-card-image,.admin-card-submit{grid-column:auto}.senna-promo{grid-template-columns:1fr;padding:23px}.senna-promo-card{width:min(58%,200px);grid-row:1}.senna-promo-copy{justify-items:center;text-align:center}}
+@media(max-width:760px){.admin-card-panel{grid-column:auto}.admin-card-editor{grid-template-columns:1fr}.admin-card-form{grid-template-columns:1fr}.admin-card-form .admin-card-image,.admin-card-submit{grid-column:auto}.admin-card-preview{width:min(100%,260px);margin:0 auto}.senna-promo{grid-template-columns:1fr;padding:23px}.senna-promo-card{width:min(58%,200px);grid-row:1}.senna-promo-copy{justify-items:center;text-align:center}}

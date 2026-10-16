@@ -37,14 +37,7 @@ create table if not exists public.cards (
   legend_pack_only boolean not null default false,
   copies_remaining integer check (copies_remaining is null or copies_remaining >= 0),
   is_published boolean not null default true,
-  tier text generated always as (
-    case
-      when rating >= 96 then 'legend'
-      when rating >= 90 then 'platinum'
-      when rating >= 85 then 'gold'
-      else 'bronze'
-    end
-  ) stored
+  tier text not null check (tier in ('bronze', 'gold', 'platinum', 'legend'))
 );
 
 alter table public.cards
@@ -53,6 +46,60 @@ alter table public.cards
   add column if not exists copies_remaining integer check (copies_remaining is null or copies_remaining >= 0);
 alter table public.cards
   add column if not exists is_published boolean not null default true;
+alter table public.cards
+  add column if not exists tier text;
+
+do $$
+begin
+  if exists (
+    select 1
+    from pg_attribute
+    where attrelid = 'public.cards'::regclass
+      and attname = 'tier'
+      and attgenerated <> ''
+  ) then
+    alter table public.cards alter column tier drop expression;
+  end if;
+end;
+$$;
+
+update public.cards
+set tier = case
+  when rating >= 96 then 'legend'
+  when rating >= 90 then 'platinum'
+  when rating >= 85 then 'gold'
+  else 'bronze'
+end
+where tier is null;
+
+alter table public.cards alter column tier set not null;
+alter table public.cards drop constraint if exists cards_tier_check;
+alter table public.cards
+  add constraint cards_tier_check
+  check (tier in ('bronze', 'gold', 'platinum', 'legend'));
+
+create or replace function public.set_default_card_tier()
+returns trigger
+language plpgsql
+set search_path = public, pg_temp
+as $$
+begin
+  if new.tier is null then
+    new.tier := case
+      when new.rating >= 96 then 'legend'
+      when new.rating >= 90 then 'platinum'
+      when new.rating >= 85 then 'gold'
+      else 'bronze'
+    end;
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists cards_set_default_tier on public.cards;
+create trigger cards_set_default_tier
+before insert on public.cards
+for each row execute function public.set_default_card_tier();
 
 create table if not exists public.pack_catalog (
   tier text primary key check (tier in ('bronze', 'platinum', 'gold', 'legend')),
@@ -354,6 +401,7 @@ insert into public.pack_catalog (tier, name, price) values
 on conflict (tier) do update set name = excluded.name, price = excluded.price, enabled = true;
 
 drop function if exists public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer);
+drop function if exists public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer, boolean);
 
 create or replace function public.admin_create_card(
   p_id text,
@@ -361,6 +409,7 @@ create or replace function public.admin_create_card(
   p_short_name text,
   p_year smallint,
   p_rating smallint,
+  p_tier text,
   p_rarity text,
   p_card_type text,
   p_image_url text,
@@ -385,6 +434,7 @@ begin
   end if;
   if p_year is null or p_year < 1900 or p_year > 2100 then raise exception 'Ungültige Saison.'; end if;
   if p_rating is null or p_rating < 1 or p_rating > 100 then raise exception 'Das Rating muss zwischen 1 und 100 liegen.'; end if;
+  if p_tier is null or p_tier not in ('bronze', 'gold', 'platinum', 'legend') then raise exception 'Ungültige Kartenstufe.'; end if;
   if p_rarity not in ('rare', 'epic', 'icon', 'legend') then raise exception 'Ungültige Seltenheit.'; end if;
   if p_card_type not in ('DRIVER', 'CAR', 'TEAM', 'TRACK') then raise exception 'Ungültiger Kartentyp.'; end if;
   if p_image_url !~* '^https?://' then raise exception 'Die Bildadresse muss mit http:// oder https:// beginnen.'; end if;
@@ -393,9 +443,9 @@ begin
   end if;
 
   insert into public.cards (
-    id, name, short_name, card_year, rating, rarity, card_type, image_url, legend_pack_only, copies_remaining, is_published
+    id, name, short_name, card_year, rating, tier, rarity, card_type, image_url, legend_pack_only, copies_remaining, is_published
   ) values (
-    v_id, trim(p_name), trim(p_short_name), p_year, p_rating, p_rarity, p_card_type,
+    v_id, trim(p_name), trim(p_short_name), p_year, p_rating, p_tier, p_rarity, p_card_type,
     trim(p_image_url), coalesce(p_legend_pack_only, false), p_copies_remaining, coalesce(p_is_published, true)
   )
   on conflict (id) do update set
@@ -403,6 +453,7 @@ begin
     short_name = excluded.short_name,
     card_year = excluded.card_year,
     rating = excluded.rating,
+    tier = excluded.tier,
     rarity = excluded.rarity,
     card_type = excluded.card_type,
     image_url = excluded.image_url,
@@ -799,7 +850,7 @@ end;
 $$;
 
 revoke all on function public.purchase_pack(text) from public, anon;
-revoke all on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer, boolean) from public, anon;
+revoke all on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, text, boolean, integer, boolean) from public, anon;
 revoke all on function public.admin_grant_card(text, text) from public, anon;
 revoke all on function public.sell_user_card(uuid) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
@@ -809,7 +860,7 @@ revoke all on function public.admin_award_custom_points(text, bigint, text) from
 revoke all on function public.claim_point_award_notifications() from public, anon;
 revoke all on function public.claim_welcome_bonus() from public, anon;
 grant execute on function public.purchase_pack(text) to authenticated;
-grant execute on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer, boolean) to authenticated;
+grant execute on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, text, boolean, integer, boolean) to authenticated;
 grant execute on function public.admin_grant_card(text, text) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
 grant execute on function public.upgrade_user_card(uuid) to authenticated;
