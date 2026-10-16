@@ -251,10 +251,7 @@ on conflict (id) do update set
 
 update public.cards
 set legend_pack_only = true,
-    copies_remaining = coalesce(
-      copies_remaining,
-      greatest(0, 4 - (select count(*) from public.user_cards where card_id = 'SENNA'))
-    )
+    copies_remaining = greatest(0, 4 - (select count(*) from public.user_cards where card_id = 'SENNA'))
 where id = 'SENNA';
 
 insert into public.cards (id, name, short_name, card_year, rating, rarity, card_type, image_url) values
@@ -403,6 +400,49 @@ begin
     copies_remaining = excluded.copies_remaining;
 
   return jsonb_build_object('id', v_id, 'name', trim(p_name));
+end;
+$$;
+
+create or replace function public.admin_grant_card(p_email text, p_card_id text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user_id uuid;
+  v_display_name text;
+  v_card_name text;
+  v_copies_remaining integer;
+begin
+  if not public.is_admin() then raise exception 'Admin-Berechtigung erforderlich.'; end if;
+  if nullif(trim(coalesce(p_email, '')), '') is null or nullif(trim(coalesce(p_card_id, '')), '') is null then
+    raise exception 'Spieler-E-Mail und Karten-ID müssen angegeben werden.';
+  end if;
+
+  select p.id, p.display_name, c.name, c.copies_remaining
+    into v_user_id, v_display_name, v_card_name, v_copies_remaining
+    from public.profiles as p
+    cross join public.cards as c
+    where lower(p.email) = lower(trim(p_email))
+      and c.id = upper(trim(p_card_id))
+    for update of c;
+  if not found then raise exception 'Spielerkonto oder Karte nicht gefunden.'; end if;
+  if v_copies_remaining is not null then
+    if v_copies_remaining < 1 then raise exception 'Von dieser limitierten Karte ist kein Exemplar mehr verfügbar.'; end if;
+    update public.cards
+      set copies_remaining = copies_remaining - 1
+      where id = upper(trim(p_card_id));
+  end if;
+
+  insert into public.user_cards(user_id, card_id)
+    values (v_user_id, upper(trim(p_card_id)));
+
+  return jsonb_build_object(
+    'card_name', v_card_name,
+    'display_name', v_display_name,
+    'email', lower(trim(p_email))
+  );
 end;
 $$;
 
@@ -712,6 +752,7 @@ $$;
 
 revoke all on function public.purchase_pack(text) from public, anon;
 revoke all on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer) from public, anon;
+revoke all on function public.admin_grant_card(text, text) from public, anon;
 revoke all on function public.sell_user_card(uuid) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
 revoke all on function public.convert_f1_points(bigint) from public, anon;
@@ -721,6 +762,7 @@ revoke all on function public.claim_point_award_notifications() from public, ano
 revoke all on function public.claim_welcome_bonus() from public, anon;
 grant execute on function public.purchase_pack(text) to authenticated;
 grant execute on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer) to authenticated;
+grant execute on function public.admin_grant_card(text, text) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
 grant execute on function public.upgrade_user_card(uuid) to authenticated;
 grant execute on function public.convert_f1_points(bigint) to authenticated;
@@ -728,3 +770,5 @@ grant execute on function public.admin_award_race_points(text, smallint, text) t
 grant execute on function public.admin_award_custom_points(text, bigint, text) to authenticated;
 grant execute on function public.claim_point_award_notifications() to authenticated;
 grant execute on function public.claim_welcome_bonus() to authenticated;
+
+notify pgrst, 'reload schema';

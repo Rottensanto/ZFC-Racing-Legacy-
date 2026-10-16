@@ -1,10 +1,13 @@
 function showPage(id){
  if(['dashboard','collection','admin'].includes(id)&&!currentUser){id='login';setAuthMessage('Bitte zuerst mit deinem Konto anmelden.');}
- if(id==='admin'&&!isAdmin){id='dashboard';toast('Dieser Bereich ist nur für die Rennleitung.');}
+ if(id==='admin'&&!isAdmin){id='dashboard';toast('Admin-Zugriff ist nur für das freigeschaltete Rennleitungs-Konto aktiv.');}
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
  const el=document.getElementById(id); if(el) el.classList.add('active');
  document.querySelectorAll('.nav a').forEach(a=>a.classList.toggle('active',a.dataset.nav===id));
- if(id==='admin'&&isAdmin)adminSearchPlayers(0);
+ if(id==='admin'&&isAdmin){
+	 adminSearchPlayers(0);
+	 refreshCardCatalog();
+ }
  window.scrollTo({top:0,behavior:'smooth'});
  document.getElementById('loginTop').textContent=currentUser?'PROFILE':'LOGIN';
 }

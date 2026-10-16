@@ -194,6 +194,15 @@
           <label class="admin-card-checkbox"><input id="cardLegendOnly" type="checkbox">Nur im Legenden-Pack verfügbar</label>
           <button class="btn red admin-card-submit" type="submit">KARTE ERSTELLEN / AKTUALISIEREN</button>
         </form>
+        <div class="admin-card-assign">
+          <h4>Karte einer Spielersammlung hinzufügen</h4>
+          <p class="admin-note">Wähle eine Katalogkarte und trage die Konto-E-Mail des Spielers ein. Die Karte wird sofort in seine Sammlung gelegt.</p>
+          <form id="cardAssignForm" class="admin-card-form" onsubmit="event.preventDefault();adminGrantCard()">
+            <label>Spieler-E-Mail<input id="cardRecipientEmail" type="email" required placeholder="fahrer@example.com"></label>
+            <label>Karte aus dem Katalog<select id="cardToGrant" required><option value="">Karten werden geladen …</option></select></label>
+            <button class="btn admin-card-submit" type="submit">KARTE IN SAMMLUNG LEGEN</button>
+          </form>
+        </div>
       </div>
     </div>
   </div></div>

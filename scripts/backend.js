@@ -32,6 +32,7 @@ function displayBackendError(error) {
   [/password should be at least/i, 'Das Passwort muss mindestens 8 Zeichen haben.'],
   [/email not confirmed/i, 'Bitte bestätige zuerst deine E-Mail-Adresse.'],
   [/email rate limit exceeded|rate limit.*email|over_email_send_rate_limit/i, 'Supabase hat das E-Mail-Limit erreicht. Warte, bis es zurückgesetzt ist. Für weitere Nutzer richte einen eigenen SMTP-Maildienst unter Authentication → SMTP Settings ein.'],
+  [/admin_create_card|admin_grant_card|copies_remaining|legend_pack_only|schema cache.*(card|admin)/i, 'Die Admin-Kartenfunktionen fehlen in Supabase. Führe supabase/migrations/20261016_admin_card_management.sql im SQL Editor aus.'],
   [/failed to fetch|fetch failed/i, 'Supabase ist nicht erreichbar. Prüfe deine Projekt-URL und Internetverbindung.']
  ];
  const message = friendlyMessages.find(([pattern]) => pattern.test(rawMessage))?.[1]
@@ -81,7 +82,18 @@ async function refreshCardCatalog() {
    img: row.image_url,
    copiesRemaining: row.copies_remaining
  })));
+ populateAdminCardOptions();
  render();
+}
+
+function populateAdminCardOptions() {
+ const select = document.getElementById('cardToGrant');
+ if (!select) return;
+ select.replaceChildren(new Option('Karte auswählen …', ''));
+ for (const card of cards) {
+   const availability = card.copiesRemaining == null ? '' : ` · ${card.copiesRemaining} verfügbar`;
+   select.add(new Option(`${card.short} · ${card.year} · OVR ${card.rating}${availability}`, card.id));
+ }
 }
 
 async function applyAuthSession(session) {
@@ -556,4 +568,19 @@ async function adminCreateCard() {
  document.getElementById('cardCreateForm').reset();
  await refreshCardCatalog();
  toast(`${card.name} wurde im Kartenkatalog gespeichert.`);
+}
+
+async function adminGrantCard() {
+ if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
+ const email = document.getElementById('cardRecipientEmail').value.trim();
+ const cardId = document.getElementById('cardToGrant').value;
+ if (!email || !cardId) return toast('Spieler-E-Mail und Karte auswählen.');
+ const { data, error } = await supabaseClient.rpc('admin_grant_card', {
+   p_email: email,
+   p_card_id: cardId
+ });
+ if (error) return displayBackendError(error);
+ document.getElementById('cardAssignForm').reset();
+ if (email.toLowerCase() === currentUser?.email?.toLowerCase()) await refreshAccountData();
+ toast(`${data.card_name} wurde der Sammlung von ${data.display_name} hinzugefügt.`);
 }
