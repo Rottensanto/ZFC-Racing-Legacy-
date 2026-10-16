@@ -15,6 +15,7 @@ async function buyPack(){
  const openedCards=(data||[]).map(row=>({instanceId:row.instance_id,name:row.card_name,short:row.short_name,year:row.card_year,rating:row.rating,rarity:row.rarity,type:row.card_type,img:row.image_url,level:row.level}));
  closeModal();
  await refreshAccountData();
+ await refreshCardCatalog();
  openShowroom(selectedPack.name,selectedPack.type,openedCards);
 }
 function playOpeningSound(packType){

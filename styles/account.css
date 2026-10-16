@@ -50,4 +50,22 @@
 .owned-card-actions button{width:100%;min-width:0;min-height:34px;padding:7px 6px;border:1px solid #ff3046;background:#270b10;color:#fff;font-size:10px;font-weight:900;line-height:1.2}
 .owned-card-actions .upgrade-card{border-color:#e6bd4a;background:#241c0d;color:#fff0bd}
 .owned-card .sell-card:hover{background:#b80c20}
+.admin-card-panel{grid-column:1/-1}
+.admin-card-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.admin-card-form label{display:grid;gap:6px;color:#c5cad2;font-size:11px;font-weight:800}
+.admin-card-form input,.admin-card-form select{min-width:0;width:100%;padding:11px;background:#090a0c;border:1px solid #30333a;border-radius:6px;color:#fff}
+.admin-card-form .admin-card-image,.admin-card-submit{grid-column:1/-1}
+.admin-card-form .admin-card-checkbox{display:flex;align-items:center;gap:9px}
+.admin-card-form .admin-card-checkbox input{width:17px;height:17px;margin:0;accent-color:#ef5962}
+.senna-promo-section{padding-top:0}
+.senna-promo{display:grid;grid-template-columns:minmax(0,1fr) minmax(170px,240px);align-items:center;gap:30px;padding:34px;border:1px solid rgba(241,190,73,.48);border-radius:12px;background:radial-gradient(ellipse at 82% 45%,rgba(110,56,22,.27),transparent 42%),linear-gradient(125deg,#17120c,#0b0c0f 62%,#1a1111);box-shadow:0 0 34px rgba(241,190,73,.1)}
+.senna-promo-copy{display:grid;justify-items:start;gap:13px}
+.senna-promo-copy .kicker{color:#e8bd58}
+.senna-promo-copy h2{margin:0;font-size:clamp(27px,4vw,46px);line-height:1.03;letter-spacing:-1px}
+.senna-promo-copy h2 span{color:#f1be49}
+.senna-promo-copy p{max-width:520px;margin:0;color:#bbc0c8;line-height:1.6}
+.senna-promo-copy strong{color:#ffe6a2;font-size:12px}
+.senna-promo-card{width:min(100%,210px);margin:auto}
+.legend-pack-senna{color:#ffdf8b!important;font-size:10px!important;line-height:1.45}
 @media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.admin-inline-row{grid-template-columns:1fr}.admin-user-identity{grid-template-columns:1fr}.admin-user-identity span{text-align:left}}
+@media(max-width:760px){.admin-card-panel{grid-column:auto}.admin-card-form{grid-template-columns:1fr}.admin-card-form .admin-card-image,.admin-card-submit{grid-column:auto}.senna-promo{grid-template-columns:1fr;padding:23px}.senna-promo-card{width:min(58%,200px);grid-row:1}.senna-promo-copy{justify-items:center;text-align:center}}

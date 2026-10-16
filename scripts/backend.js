@@ -55,12 +55,33 @@ async function initializeBackend() {
  const { data: { session }, error } = await supabaseClient.auth.getSession();
  if (error) displayBackendError(error);
  await applyAuthSession(session);
+ await refreshCardCatalog();
  supabaseClient.auth.onAuthStateChange((event, nextSession) => {
    window.setTimeout(async () => {
      await applyAuthSession(nextSession);
      if (event === 'SIGNED_IN' && nextSession?.user) showPage('dashboard');
    }, 0);
  });
+}
+
+async function refreshCardCatalog() {
+ if (!supabaseClient) return;
+ const { data, error } = await supabaseClient.from('cards')
+   .select('id,name,short_name,card_year,rating,rarity,card_type,image_url,copies_remaining')
+   .order('card_year', { ascending: false });
+ if (error) return displayBackendError(error);
+ cards.splice(0, cards.length, ...(data || []).map(row => ({
+   id: row.id,
+   name: row.name,
+   short: row.short_name,
+   year: row.card_year,
+   rating: row.rating,
+   rarity: row.rarity,
+   type: row.card_type,
+   img: row.image_url,
+   copiesRemaining: row.copies_remaining
+ })));
+ render();
 }
 
 async function applyAuthSession(session) {
@@ -493,4 +514,46 @@ async function adminAwardCustomPoints(email, eventName, pointsValue, inlineAward
  }
  if (inlineAward) inlineAward.open = false;
  await adminSearchPlayers(adminPlayersPage);
+}
+
+async function adminCreateCard() {
+ if (!requireBackend() || !isAdmin) return toast('Admin-Berechtigung erforderlich.');
+ const card = {
+   id: document.getElementById('cardId').value.trim().toUpperCase(),
+   name: document.getElementById('cardName').value.trim(),
+   shortName: document.getElementById('cardShortName').value.trim(),
+   year: Number(document.getElementById('cardYear').value),
+   rating: Number(document.getElementById('cardRating').value),
+   rarity: document.getElementById('cardRarity').value,
+   type: document.getElementById('cardType').value,
+   imageUrl: document.getElementById('cardImageUrl').value.trim(),
+   legendPackOnly: document.getElementById('cardLegendOnly').checked,
+   copiesRemaining: document.getElementById('cardCopies').value === ''
+     ? null
+     : Number(document.getElementById('cardCopies').value)
+ };
+ if (!/^[A-Z0-9_-]{2,64}$/.test(card.id)) return toast('Karten-ID: 2–64 Zeichen, nur A–Z, 0–9, _ oder -.');
+ if (!card.name || !card.shortName || !Number.isInteger(card.year) || !Number.isInteger(card.rating)) {
+   return toast('Bitte Name, Kurzname, Saison und Rating vollständig ausfüllen.');
+ }
+ if (!/^https?:\/\//i.test(card.imageUrl)) return toast('Bitte eine Bild-URL mit http:// oder https:// angeben.');
+ if (card.copiesRemaining !== null && (!Number.isInteger(card.copiesRemaining) || card.copiesRemaining < 1)) {
+   return toast('Das Kartenlimit muss eine positive ganze Zahl sein oder leer bleiben.');
+ }
+ const { error } = await supabaseClient.rpc('admin_create_card', {
+   p_id: card.id,
+   p_name: card.name,
+   p_short_name: card.shortName,
+   p_year: card.year,
+   p_rating: card.rating,
+   p_rarity: card.rarity,
+   p_card_type: card.type,
+   p_image_url: card.imageUrl,
+   p_legend_pack_only: card.legendPackOnly,
+   p_copies_remaining: card.copiesRemaining
+ });
+ if (error) return displayBackendError(error);
+ document.getElementById('cardCreateForm').reset();
+ await refreshCardCatalog();
+ toast(`${card.name} wurde im Kartenkatalog gespeichert.`);
 }

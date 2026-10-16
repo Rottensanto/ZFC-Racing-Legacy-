@@ -108,6 +108,8 @@ on conflict (user_id) do update set role = 'admin';
 
 Die Adminrolle lässt sich nicht über die Website vergeben. Zusätzlich akzeptiert die Datenbank Adminrechte ausschließlich für `s.barbosa.galaxy@gmail.com`; andere Rollen-Einträge können keine Punkte vergeben. Im Konto kann die offizielle Platzierung oder eine frei eingegebene ganze F1-Punktezahl von 1 bis 100.000 gebucht werden. Für die freie Vergabe Event/Rennen angeben; dieselbe Konto/Event-Kombination kann nur einmal gutgeschrieben werden. Ungesehene Gutschriften werden beim nächsten Login als animierte Meldung angezeigt; aktive Konten prüfen automatisch auf neue Punkte. Nach einer Schemaänderung den gesamten Inhalt aus `schema.sql` im SQL Editor erneut ausführen. Das Schema erstellt für jedes neue Auth-Konto automatisch ein Profil und schützt Kontodaten mit Row Level Security.
 
+Im Admin-Bereich gibt es außerdem **Komplette Karte erstellen**. Dort lassen sich ID, Name, Kurzname, Saison, Rating, Seltenheit, Kartentyp (Fahrer, Auto/Livery, Team oder Strecke) und eine HTTP(S)-Bild-URL festlegen. Eine ID aktualisiert eine bereits vorhandene Karte; eine neue ID legt eine neue Katalogkarte an. Ein leeres Exemplar-Limit bedeutet unbegrenzt, ein gesetztes Limit wird beim Ziehen sicher serverseitig heruntergezählt. Die Ayrton-Senna-Weltmeisterkarte ist fest auf vier Exemplare begrenzt und ausschließlich im Legenden-Pack verfügbar; ihre Karten-ID `SENNA` ist für Änderungen über das Formular geschützt.
+
 ## Spielregeln
 
 - F1-Platzierungspunkte: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1 für Platz 1 bis 10. Die Gutschrift wird mit 100 multipliziert.
@@ -116,3 +118,4 @@ Die Adminrolle lässt sich nicht über die Website vergeben. Zusätzlich akzepti
 - Karten starten auf Level 1; ein Levelaufstieg kostet `aktuelles Level × 300` Coins, bis maximal Level 10.
 - Packpreise: Bronze 1.000, Platinum 5.000, Gold 9.500, Gold Double (10 Karten) 18.000, Legend 17.000 Coins.
 - Ziehungsquoten je Karte: Bronze 92 % Bronze / 8 % Gold (keine Platinum- oder Legend-Karten); Gold 92 % Gold / 7 % Platinum / 1 % Legend; Gold Double 96,5 % Gold / 3,2 % Platinum / 0,3 % Legend; Platinum 15 % Gold / 80 % Platinum / 5 % Legend; Legend 5 % Gold / 30 % Platinum / 65 % Legend.
+- Karten mit niedrigerem Rating, darunter die neuen F1-Streckenkarten, landen abhängig vom Rating in den niedrigeren Pack-Stufen.

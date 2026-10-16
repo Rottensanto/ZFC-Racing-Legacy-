@@ -71,6 +71,18 @@
       </div>
     </div>
   </div>
+  <section class="section senna-promo-section"><div class="container">
+    <div class="senna-promo">
+      <div class="senna-promo-copy">
+        <div class="kicker">LIMITIERTE LEGENDE · WELTMEISTER 1991</div>
+        <h2>AYRTON SENNA<br><span>NUR 4 EXEMPLARE</span></h2>
+        <p>Ziehe die exklusive Senna-Karte im Legenden-Pack. Weltweit gibt es nur vier Exemplare dieser Karte.</p>
+        <strong id="sennaStock" role="status">Nur vier Exemplare insgesamt.</strong>
+        <button class="btn gold big" type="button" onclick="showPage('shop')">LEGENDEN-PACK ANSEHEN</button>
+      </div>
+      <div class="senna-promo-card" id="sennaPromoCard" aria-label="Ayrton Senna Karte"></div>
+    </div>
+  </div></section>
   <div class="statsbar"><div class="container stats">
     <div class="stat"><b>75+</b><small>YEARS OF HISTORY</small></div>
     <div class="stat"><b>1,000+</b><small>DRIVER & CAR CARDS</small></div>
@@ -166,6 +178,23 @@
     <div class="admin-grid">
       <div class="panel"><h3>Punkte vergeben</h3><p class="admin-note">Offizielle F1-Platzierungspunkte × 100 werden gutgeschrieben.</p><div class="field"><label>Spieler-E-Mail</label><input id="awardEmail" type="email" placeholder="fahrer@example.com"></div><div class="field"><label>Rennen / Event</label><input id="awardEvent" placeholder="Monaco Grand Prix · Liga A · Runde 1"></div><div class="field"><label>Platzierung</label><select id="awardPosition"><option value="1">1. Platz · 25 Punkte</option><option value="2">2. Platz · 18 Punkte</option><option value="3">3. Platz · 15 Punkte</option><option value="4">4. Platz · 12 Punkte</option><option value="5">5. Platz · 10 Punkte</option><option value="6">6. Platz · 8 Punkte</option><option value="7">7. Platz · 6 Punkte</option><option value="8">8. Platz · 4 Punkte</option><option value="9">9. Platz · 2 Punkte</option><option value="10">10. Platz · 1 Punkt</option></select></div><button class="btn red" onclick="adminAwardRacePoints()">ERGEBNIS VERBUCHEN</button></div>
       <div class="panel admin-players-panel"><div class="admin-players-head"><h3>Alle Konten</h3><span id="adminPageStatus" role="status">Konten werden geladen ...</span></div><div class="form-row"><input id="adminSearchEmail" type="search" placeholder="E-Mail suchen"><button class="btn" onclick="adminSearchPlayers(0)">SUCHEN</button></div><div id="adminUsers" class="admin-user-list"></div><div class="admin-pagination"><button class="btn" id="adminPreviousPage" type="button" onclick="adminPreviousPlayersPage()">ZURÜCK</button><button class="btn" id="adminNextPage" type="button" onclick="adminNextPlayersPage()">WEITER</button></div></div>
+      <div class="panel admin-card-panel">
+        <h3>Komplette Karte erstellen</h3>
+        <p class="admin-note">Neue Karten werden direkt im Pack-Katalog gespeichert. Eine begrenzte Anzahl wird beim Ziehen dauerhaft heruntergezählt.</p>
+        <form id="cardCreateForm" class="admin-card-form" onsubmit="event.preventDefault();adminCreateCard()">
+          <label>Karten-ID<input id="cardId" required maxlength="64" placeholder="SENNA-1991-ALT"></label>
+          <label>Kartenname<input id="cardName" required maxlength="120" placeholder="Ayrton Senna · Weltmeister 1991"></label>
+          <label>Kurzname<input id="cardShortName" required maxlength="40" placeholder="SENNA 1991"></label>
+          <label>Saison / Jahr<input id="cardYear" type="number" min="1900" max="2100" required value="1991"></label>
+          <label>Rating (1–100)<input id="cardRating" type="number" min="1" max="100" required value="90"></label>
+          <label>Seltenheit<select id="cardRarity" required><option value="rare">Rare</option><option value="epic">Epic</option><option value="icon">Icon</option><option value="legend">Legend</option></select></label>
+          <label>Kartentyp<select id="cardType" required><option value="DRIVER">Fahrer</option><option value="CAR">Auto / Livery</option><option value="TEAM">Team</option><option value="TRACK">Strecke</option></select></label>
+          <label class="admin-card-image">Bild-URL<input id="cardImageUrl" type="url" required placeholder="https://…"></label>
+          <label class="admin-card-limit">Verfügbare Exemplare<input id="cardCopies" type="number" min="1" max="100000" placeholder="Leer = unbegrenzt"></label>
+          <label class="admin-card-checkbox"><input id="cardLegendOnly" type="checkbox">Nur im Legenden-Pack verfügbar</label>
+          <button class="btn red admin-card-submit" type="submit">KARTE ERSTELLEN / AKTUALISIEREN</button>
+        </form>
+      </div>
     </div>
   </div></div>
 </section>
@@ -178,7 +207,7 @@
       <div class="pack pack-shop platinum"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>PLATINUM</span></div></div><h3>PLATINUM PACK</h3><p>5 Karten · starke Platinum-Chance</p><div class="odds"><span>GOLD 15%</span><span>PLATINUM 80%</span><span class="g">LEGEND 5%</span></div><div class="price">5.000 C</div><button class="btn red" onclick="openPurchase('PLATINUM PACK',5000,'platinum')">PACK KAUFEN</button></div>
       <div class="pack pack-shop gold"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>GOLD</span></div></div><h3>GOLD PACK</h3><p>5 Karten · Legenden bleiben selten</p><div class="odds"><span>GOLD 92%</span><span>PLATINUM 7%</span><span class="g">LEGEND 1%</span></div><div class="price">9.500 C</div><button class="btn gold" onclick="openPurchase('GOLD PACK',9500,'gold')">PACK KAUFEN</button></div>
       <div class="pack pack-shop gold gold-double"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>GOLD DOUBLE</span></div></div><h3>GOLD DOUBLE PACK</h3><p>10 Karten · sehr niedrige Top-Tier-Chance</p><div class="odds"><span>GOLD 96,5%</span><span>PLATINUM 3,2%</span><span class="g">LEGEND 0,3%</span></div><div class="price">18.000 C</div><button class="btn gold" onclick="openPurchase('GOLD DOUBLE PACK',18000,'gold_double')">PACK KAUFEN</button></div>
-      <div class="pack pack-shop legend"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>LEGEND</span></div></div><h3>LEGEND PACK</h3><p>5 Karten · auf Legenden ausgerichtet</p><div class="odds"><span>GOLD 5%</span><span>PLATINUM 30%</span><span class="g">LEGEND 65%</span></div><div class="price">17.000 C</div><button class="btn gold" onclick="openPurchase('LEGEND PACK',17000,'legend')">PACK KAUFEN</button></div>
+      <div class="pack pack-shop legend"><div class="pack-art"><div class="foil"><img class="shop-logo" src="zfc-logo.svg" alt="ZFC"><span>LEGEND</span></div></div><h3>LEGEND PACK</h3><p>5 Karten · auf Legenden ausgerichtet</p><div class="odds"><span>GOLD 5%</span><span>PLATINUM 30%</span><span class="g">LEGEND 65%</span></div><p class="legend-pack-senna" id="legendPackSennaStatus">Chance auf eines der vier Senna-Exemplare.</p><div class="price">17.000 C</div><button class="btn gold" onclick="openPurchase('LEGEND PACK',17000,'legend')">PACK KAUFEN</button></div>
     </div>
   </div></section>
 </section>

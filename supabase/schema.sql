@@ -34,6 +34,8 @@ create table if not exists public.cards (
   rarity text not null check (rarity in ('rare', 'epic', 'icon', 'legend')),
   card_type text not null,
   image_url text not null,
+  legend_pack_only boolean not null default false,
+  copies_remaining integer check (copies_remaining is null or copies_remaining >= 0),
   tier text generated always as (
     case
       when rating >= 96 then 'legend'
@@ -43,6 +45,11 @@ create table if not exists public.cards (
     end
   ) stored
 );
+
+alter table public.cards
+  add column if not exists legend_pack_only boolean not null default false;
+alter table public.cards
+  add column if not exists copies_remaining integer check (copies_remaining is null or copies_remaining >= 0);
 
 create table if not exists public.pack_catalog (
   tier text primary key check (tier in ('bronze', 'platinum', 'gold', 'legend')),
@@ -221,18 +228,46 @@ grant select on public.profiles, public.user_cards, public.coin_ledger, public.p
 grant select on public.cards, public.pack_catalog to anon, authenticated;
 
 insert into public.cards (id, name, short_name, card_year, rating, rarity, card_type, image_url) values
-  ('FANGIO', 'Juan Manuel Fangio', 'FANGIO', 1954, 98, 'legend', 'LEGEND', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ca/Beaufort_at_1961_Dutch_Grand_Prix_%282%29.jpg/960px-Beaufort_at_1961_Dutch_Grand_Prix_%282%29.jpg'),
-  ('SENNA', 'Ayrton Senna', 'SENNA', 1990, 94, 'icon', 'ICON', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/06/ClarkJim-Lotus19620805.jpg/960px-ClarkJim-Lotus19620805.jpg'),
-  ('SCHUMACHER', 'Michael Schumacher', 'SCHUMACHER', 2001, 91, 'epic', 'EPIC', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/2004_Williams_FW26.jpg/960px-2004_Williams_FW26.jpg'),
+  ('FANGIO', 'Juan Manuel Fangio', 'FANGIO', 1954, 98, 'legend', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Juan_Manuel_Fangio_%28circa_1952%29.jpg/960px-Juan_Manuel_Fangio_%28circa_1952%29.jpg'),
+  ('SENNA', 'Ayrton Senna · Weltmeister 1991', 'SENNA 1991', 1991, 99, 'legend', 'DRIVER', 'https://upload.wikimedia.org/wikipedia/commons/b/be/Ayrton_Senna_Montreal_1988.jpg'),
+  ('SCHUMACHER', 'Michael Schumacher', 'SCHUMACHER', 2001, 91, 'epic', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Michael_Schumacher_Ferrari_2004.jpg/960px-Michael_Schumacher_Ferrari_2004.jpg'),
   ('HAMILTON', 'Lewis Hamilton', 'HAMILTON', 2020, 88, 'rare', 'RARE', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/2022_British_Grand_Prix_%2852382575808%29.jpg/960px-2022_British_Grand_Prix_%2852382575808%29.jpg'),
   ('VERSTAPPEN', 'Max Verstappen', 'VERSTAPPEN', 2023, 85, 'rare', 'RARE', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/2015_Malaysian_GP_opening_lap.jpg/960px-2015_Malaysian_GP_opening_lap.jpg'),
-  ('PROST', 'Alain Prost', 'PROST', 1988, 90, 'epic', 'EPIC', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d6/1985_European_GP_Brundle_02.jpg/960px-1985_European_GP_Brundle_02.jpg'),
+  ('PROST', 'Alain Prost', 'PROST', 1988, 90, 'epic', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Alain_Prost_Integralhelm_1985.jpg/960px-Alain_Prost_Integralhelm_1985.jpg'),
   ('RAIKKONEN', 'Kimi Räikkönen', 'RÄIKKÖNEN', 2007, 82, 'rare', 'RARE', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1c/2018_Chinese_Grand_Prix_FP3_Fernando_Alonso_%2840970600574%29.jpg/960px-2018_Chinese_Grand_Prix_FP3_Fernando_Alonso_%2840970600574%29.jpg'),
   ('ROSBERG', 'Nico Rosberg', 'ROSBERG', 2013, 83, 'rare', 'RARE', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/2/25/Drivers_at_1969_Dutch_Grand_Prix.jpg/960px-Drivers_at_1969_Dutch_Grand_Prix.jpg'),
-  ('MANSELL', 'Nigel Mansell', 'MANSELL', 1992, 87, 'rare', 'RARE', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d5/Grand_Prix_Zandvoort_1966_Taylor%2C_Bestanddeelnr_919-3828.jpg/960px-Grand_Prix_Zandvoort_1966_Taylor%2C_Bestanddeelnr_919-3828.jpg'),
-  ('F2004', 'Ferrari F2004', 'F2004', 2004, 94, 'icon', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/2004_Williams_FW26.jpg/960px-2004_Williams_FW26.jpg'),
-  ('MP4-4', 'McLaren MP4/4', 'MP4/4', 1988, 96, 'legend', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b6/Lotus_95T_Elio_De_Angelis_Detroit_Grand_Prix_1984a.jpeg/960px-Lotus_95T_Elio_De_Angelis_Detroit_Grand_Prix_1984a.jpeg'),
+  ('MANSELL', 'Nigel Mansell', 'MANSELL', 1992, 87, 'rare', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Car_Show_Nigel_Mansell_with_His_1992_Williams-Renault_FW14B_Formula_1_Car.jpg/960px-Car_Show_Nigel_Mansell_with_His_1992_Williams-Renault_FW14B_Formula_1_Car.jpg'),
+  ('F2004', 'Ferrari F2004', 'F2004', 2004, 94, 'icon', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Michael_Schumacher_Ferrari_2004.jpg/960px-Michael_Schumacher_Ferrari_2004.jpg'),
+  ('MP4-4', 'McLaren MP4/4', 'MP4/4', 1988, 96, 'legend', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1f/1988_McLaren-Honda_MP4_4_Goodwood%2C_2009_%2801%29.jpg/960px-1988_McLaren-Honda_MP4_4_Goodwood%2C_2009_%2801%29.jpg'),
   ('RB19', 'Red Bull RB19', 'RB19', 2023, 92, 'icon', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c6/2018_Chinese_Grand_Prix_FP3_Charles_Leclerc_%2839897914770%29.jpg/960px-2018_Chinese_Grand_Prix_FP3_Charles_Leclerc_%2839897914770%29.jpg')
+on conflict (id) do update set
+  name = excluded.name,
+  short_name = excluded.short_name,
+  card_year = excluded.card_year,
+  rating = excluded.rating,
+  rarity = excluded.rarity,
+  card_type = excluded.card_type,
+  image_url = excluded.image_url;
+
+update public.cards
+set legend_pack_only = true,
+    copies_remaining = coalesce(
+      copies_remaining,
+      greatest(0, 4 - (select count(*) from public.user_cards where card_id = 'SENNA'))
+    )
+where id = 'SENNA';
+
+insert into public.cards (id, name, short_name, card_year, rating, rarity, card_type, image_url) values
+  ('FANGIO-51', 'Juan Manuel Fangio · Weltmeister 1951', 'FANGIO 1951', 1951, 97, 'legend', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/63/Juan_Manuel_Fangio_%28circa_1952%29.jpg/960px-Juan_Manuel_Fangio_%28circa_1952%29.jpg'),
+  ('SCHUMACHER-04', 'Michael Schumacher · Weltmeister 2004', 'SCHUMI 2004', 2004, 99, 'legend', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d3/Michael_Schumacher_Ferrari_2004.jpg/960px-Michael_Schumacher_Ferrari_2004.jpg'),
+  ('PROST-85', 'Alain Prost · Weltmeister 1985', 'PROST 1985', 1985, 95, 'icon', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f2/Alain_Prost_Integralhelm_1985.jpg/960px-Alain_Prost_Integralhelm_1985.jpg'),
+  ('VETTEL-13', 'Sebastian Vettel · Weltmeister 2013', 'VETTEL 2013', 2013, 96, 'legend', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b8/Formula_One_Grand_Prix_Singapore_2013_-_Sebastian_Vettel_in_Red_Bull_Renault_1.jpg/960px-Formula_One_Grand_Prix_Singapore_2013_-_Sebastian_Vettel_in_Red_Bull_Renault_1.jpg'),
+  ('HAMILTON-20', 'Lewis Hamilton · Weltmeister 2020', 'HAM 2020', 2020, 97, 'legend', 'DRIVER', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Lewis_Hamilton-Mercedes_W11_%283%29.jpg/960px-Lewis_Hamilton-Mercedes_W11_%283%29.jpg'),
+  ('CAR-MP4-4', 'McLaren MP4/4 · Senna / Prost', 'MP4/4', 1988, 97, 'legend', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/1/1f/1988_McLaren-Honda_MP4_4_Goodwood%2C_2009_%2801%29.jpg/960px-1988_McLaren-Honda_MP4_4_Goodwood%2C_2009_%2801%29.jpg'),
+  ('CAR-FW14B', 'Williams FW14B · Nigel Mansell', 'FW14B', 1992, 94, 'icon', 'CAR', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/ce/Car_Show_Nigel_Mansell_with_His_1992_Williams-Renault_FW14B_Formula_1_Car.jpg/960px-Car_Show_Nigel_Mansell_with_His_1992_Williams-Renault_FW14B_Formula_1_Car.jpg'),
+  ('TRACK-MONACO', 'Circuit de Monaco', 'MONACO', 2024, 72, 'rare', 'TRACK', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/4/45/Circuit_de_Monaco%2C_April_1%2C_2018_SkySat.jpg/960px-Circuit_de_Monaco%2C_April_1%2C_2018_SkySat.jpg'),
+  ('TRACK-SPA', 'Circuit de Spa-Francorchamps', 'SPA', 2024, 76, 'rare', 'TRACK', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Circuit_de_Spa-Francorchamps%2C_April_22%2C_2018_SkySat.jpg/960px-Circuit_de_Spa-Francorchamps%2C_April_22%2C_2018_SkySat.jpg'),
+  ('TRACK-MONZA', 'Autodromo Nazionale Monza', 'MONZA', 2024, 78, 'rare', 'TRACK', 'https://thumb.wikimedia.org/wikipedia/commons/thumb/d/da/Autodromo_Nazionale_Monza%2C_April_22%2C_2018_SkySat.jpg/960px-Autodromo_Nazionale_Monza%2C_April_22%2C_2018_SkySat.jpg')
 on conflict (id) do update set
   name = excluded.name,
   short_name = excluded.short_name,
@@ -314,6 +349,63 @@ insert into public.pack_catalog (tier, name, price) values
   ('legend', 'LEGEND PACK', 17000)
 on conflict (tier) do update set name = excluded.name, price = excluded.price, enabled = true;
 
+create or replace function public.admin_create_card(
+  p_id text,
+  p_name text,
+  p_short_name text,
+  p_year smallint,
+  p_rating smallint,
+  p_rarity text,
+  p_card_type text,
+  p_image_url text,
+  p_legend_pack_only boolean default false,
+  p_copies_remaining integer default null
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_id text := upper(trim(coalesce(p_id, '')));
+begin
+  if not public.is_admin() then raise exception 'Admin-Berechtigung erforderlich.'; end if;
+  if v_id !~ '^[A-Z0-9_-]{2,64}$' then raise exception 'Ungültige Karten-ID.'; end if;
+  if v_id = 'SENNA' then raise exception 'Die limitierte Senna-Karte kann nicht über dieses Formular geändert werden.'; end if;
+  if nullif(trim(coalesce(p_name, '')), '') is null
+     or nullif(trim(coalesce(p_short_name, '')), '') is null then
+    raise exception 'Kartenname und Kurzname dürfen nicht leer sein.';
+  end if;
+  if p_year is null or p_year < 1900 or p_year > 2100 then raise exception 'Ungültige Saison.'; end if;
+  if p_rating is null or p_rating < 1 or p_rating > 100 then raise exception 'Das Rating muss zwischen 1 und 100 liegen.'; end if;
+  if p_rarity not in ('rare', 'epic', 'icon', 'legend') then raise exception 'Ungültige Seltenheit.'; end if;
+  if p_card_type not in ('DRIVER', 'CAR', 'TEAM', 'TRACK') then raise exception 'Ungültiger Kartentyp.'; end if;
+  if p_image_url !~* '^https?://' then raise exception 'Die Bildadresse muss mit http:// oder https:// beginnen.'; end if;
+  if p_copies_remaining is not null and (p_copies_remaining < 1 or p_copies_remaining > 100000) then
+    raise exception 'Das Kartenlimit muss zwischen 1 und 100.000 liegen.';
+  end if;
+
+  insert into public.cards (
+    id, name, short_name, card_year, rating, rarity, card_type, image_url, legend_pack_only, copies_remaining
+  ) values (
+    v_id, trim(p_name), trim(p_short_name), p_year, p_rating, p_rarity, p_card_type,
+    trim(p_image_url), coalesce(p_legend_pack_only, false), p_copies_remaining
+  )
+  on conflict (id) do update set
+    name = excluded.name,
+    short_name = excluded.short_name,
+    card_year = excluded.card_year,
+    rating = excluded.rating,
+    rarity = excluded.rarity,
+    card_type = excluded.card_type,
+    image_url = excluded.image_url,
+    legend_pack_only = excluded.legend_pack_only,
+    copies_remaining = excluded.copies_remaining;
+
+  return jsonb_build_object('id', v_id, 'name', trim(p_name));
+end;
+$$;
+
 create or replace function public.purchase_pack(p_tier text)
 returns table(instance_id uuid, catalog_id text, card_name text, short_name text, card_year smallint, rating smallint, rarity text, card_type text, image_url text, level smallint, tier text)
 language plpgsql
@@ -331,6 +423,8 @@ declare
   v_card_count integer;
   v_roll double precision;
   v_target_tier text;
+  v_candidate_id text;
+  v_copies_remaining integer;
 begin
   if v_user_id is null then raise exception 'Bitte zuerst anmelden.'; end if;
   select price into v_price from public.pack_catalog where pack_catalog.tier = p_tier and enabled;
@@ -362,8 +456,28 @@ begin
         v_target_tier := case when v_roll < 5 then 'gold' when v_roll < 35 then 'platinum' else 'legend' end;
     end case;
 
-    select c.id into v_catalog_id from public.cards as c where c.tier = v_target_tier order by random() limit 1;
-    if v_catalog_id is null then raise exception 'Der Kartenkatalog ist leer.'; end if;
+    loop
+      v_catalog_id := null;
+      select c.id, c.copies_remaining
+        into v_candidate_id, v_copies_remaining
+        from public.cards as c
+        where c.tier = v_target_tier
+          and (not c.legend_pack_only or p_tier = 'legend')
+          and (c.copies_remaining is null or c.copies_remaining > 0)
+        order by random()
+        limit 1;
+      if not found then raise exception 'Für diese Pack-Stufe sind keine Karten verfügbar.'; end if;
+
+      if v_copies_remaining is null then
+        v_catalog_id := v_candidate_id;
+      else
+        update public.cards
+          set copies_remaining = copies_remaining - 1
+          where id = v_candidate_id and copies_remaining > 0
+          returning id into v_catalog_id;
+      end if;
+      exit when v_catalog_id is not null;
+    end loop;
     insert into public.user_cards(user_id, card_id)
       values (v_user_id, v_catalog_id) returning id into v_instance_id;
     v_instances := array_append(v_instances, v_instance_id);
@@ -592,10 +706,12 @@ begin
   from claimed;
 
   return v_notifications;
+
 end;
 $$;
 
 revoke all on function public.purchase_pack(text) from public, anon;
+revoke all on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer) from public, anon;
 revoke all on function public.sell_user_card(uuid) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
 revoke all on function public.convert_f1_points(bigint) from public, anon;
@@ -604,6 +720,7 @@ revoke all on function public.admin_award_custom_points(text, bigint, text) from
 revoke all on function public.claim_point_award_notifications() from public, anon;
 revoke all on function public.claim_welcome_bonus() from public, anon;
 grant execute on function public.purchase_pack(text) to authenticated;
+grant execute on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, boolean, integer) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
 grant execute on function public.upgrade_user_card(uuid) to authenticated;
 grant execute on function public.convert_f1_points(bigint) to authenticated;
