@@ -21,4 +21,4 @@
 @keyframes pack-tier-sweep{0%,12%{transform:translateX(-72%);opacity:0}32%{opacity:.9}68%{opacity:.75}100%{transform:translateX(72%);opacity:0}}
 @media(prefers-reduced-motion:reduce){.pack-shop.gold .foil:after,.pack-shop.gold-double .foil:after,.pack-shop.legend .foil:after{animation:none}}
 
-.collection-head{display:flex;gap:12px;align-items:center;margin-bottom:20px}.search{flex:1;background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.filter{background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.collection-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:15px}
+.collection-head{display:flex;gap:12px;align-items:center;margin-bottom:20px}.search{flex:1;background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.filter{background:#0e1013;border:1px solid #30333a;color:white;border-radius:8px;padding:12px}.collection-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}

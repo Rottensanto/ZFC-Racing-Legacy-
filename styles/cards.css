@@ -97,3 +97,7 @@
 .card.livery-williams{--card-metal:#67a9ff;--card-light:#e4efff;--card-glow:rgba(68,132,255,.46)}
 .card.livery-cadillac{--card-metal:#d8c59e;--card-light:#fff3d5;--card-glow:rgba(196,166,105,.42)}
 .card[data-card-type="track"] .photo-image{object-fit:contain;padding:8%;filter:saturate(.82) contrast(1.06)}
+.card{gap:9px;padding:9px;box-shadow:inset 0 1px rgba(255,255,255,.22),inset 0 -14px 28px rgba(0,0,0,.44),0 12px 28px rgba(0,0,0,.54),0 0 25px var(--card-glow)}
+.card-media{border-radius:7px}
+.card .info{padding:9px 9px 8px}
+.card .name{display:-webkit-box;min-height:2.3em;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere;font-size:13px;line-height:1.15;white-space:normal;text-overflow:clip}

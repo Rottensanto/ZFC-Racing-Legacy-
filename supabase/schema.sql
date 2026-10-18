@@ -300,7 +300,8 @@ on conflict (id) do update set
   image_url = excluded.image_url;
 
 update public.cards
-set legend_pack_only = true,
+set tier = 'gold',
+    legend_pack_only = true,
     copies_remaining = least(
       coalesce(copies_remaining, 4),
       greatest(0, 4 - (select count(*) from public.user_cards where card_id = 'SENNA'))
@@ -594,7 +595,7 @@ begin
         when 'platinum' then
           v_target_tier := case when v_roll < 15 then 'gold' when v_roll < 95 then 'platinum' else 'legend' end;
         when 'legend' then
-          v_target_tier := case when v_roll < 5 then 'gold' when v_roll < 35 then 'platinum' else 'legend' end;
+          v_target_tier := 'gold';
       end case;
 
       loop
@@ -602,23 +603,13 @@ begin
         select c.id, c.copies_remaining
           into v_candidate_id, v_copies_remaining
           from public.cards as c
-          where case v_target_tier
-              when 'legend' then c.tier in ('legend', 'platinum', 'gold', 'bronze')
-              when 'platinum' then c.tier in ('platinum', 'gold', 'bronze')
-              when 'gold' then c.tier in ('gold', 'bronze')
-              else c.tier = 'bronze'
-            end
+          where c.tier = v_target_tier
             and c.id <> 'SENNA'
             and c.is_published
             and (not c.legend_pack_only or p_tier = 'legend')
             and (c.copies_remaining is null or c.copies_remaining > 0)
             and not (c.id = any(v_drawn_card_ids))
-          order by case c.tier
-            when v_target_tier then 0
-            when 'platinum' then 1
-            when 'gold' then 2
-            else 3
-          end, random()
+          order by random()
           limit 1;
         if not found then
           raise exception 'Für dieses Pack sind nicht genügend unterschiedliche veröffentlichte Karten verfügbar.';
