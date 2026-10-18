@@ -12,6 +12,11 @@ function cardLivery(c){
  const name=`${c.name||''} ${c.short||''}`.toLowerCase();
  return ['mclaren','ferrari','mercedes','red bull','racing bulls','alpine','haas','audi','aston martin','williams','cadillac'].find(team=>name.includes(team))?.replaceAll(' ','-')||'';
 }
+function cardSalePrice(c){
+ const tierBase={bronze:100,gold:250,platinum:500,legend:1000}[cardTier(c)];
+ const level=Number(c.level||1);
+ return Math.round((tierBase+(c.rating*5))*Math.pow(1.12,level-1));
+}
 function cardHTML(c, showSale = false){
  const tier=cardTier(c);
  const livery=cardLivery(c);
@@ -23,10 +28,10 @@ function cardHTML(c, showSale = false){
  const short=escapeCardText(c.short);
  const image=escapeCardText(c.img);
  const level=Number(c.level||1);
- const tierBase={bronze:100,gold:250,platinum:500,legend:1000}[tier];
- const saleEstimate=tierBase+(c.rating*5)+((level-1)*75);
+ const saleEstimate=cardSalePrice(c);
  const levelMarkup=showSale?`<div class="card-level">LEVEL ${level}</div>`:'';
- const actionMarkup=showSale?`<div class="owned-card-actions">${level<10?`<button class="upgrade-card" onclick="event.stopPropagation();upgradeCard('${c.instanceId}')">LEVEL UP · ${(level*300).toLocaleString()} C</button>`:''}<button class="sell-card" onclick="event.stopPropagation();sellCard('${c.instanceId}')">VERKAUFEN · ${saleEstimate.toLocaleString()} C</button></div>`:'';
+ const selectionMarkup=showSale&&bulkSellMode?`<label class="card-sale-selection"><input type="checkbox" aria-label="${short} zum Verkauf auswählen" ${selectedSaleCards.has(c.instanceId)?'checked':''} onchange="toggleSaleSelection('${c.instanceId}',this.checked)"><span>FÜR SAMMELVERKAUF AUSWÄHLEN</span></label>`:'';
+ const actionMarkup=showSale?`<div class="owned-card-actions">${selectionMarkup}${level<10?`<button class="upgrade-card" onclick="event.stopPropagation();upgradeCard('${c.instanceId}')">LEVEL UP · ${(level*300).toLocaleString()} C</button>`:''}<button class="sell-card" onclick="event.stopPropagation();sellCard('${c.instanceId}')">VERKAUFEN · ${saleEstimate.toLocaleString()} C</button></div>`:'';
  const photoMarkup=image
 	 ?cardType==='TEAM'
 	  ?`<div class="photo team-photo"><img src="${image}" alt="${name} Logo" loading="lazy"></div>`

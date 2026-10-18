@@ -672,9 +672,11 @@ begin
     for update of uc;
   if not found then raise exception 'Karte nicht im eigenen Bestand gefunden.'; end if;
 
-  v_value := (case v_card.tier when 'bronze' then 100 when 'gold' then 250 when 'platinum' then 500 else 1000 end)
-    + (v_card.rating * 5)
-    + ((v_card.level - 1) * 75);
+  v_value := round(
+    ((case v_card.tier when 'bronze' then 100 when 'gold' then 250 when 'platinum' then 500 else 1000 end)
+      + (v_card.rating * 5))
+    * power(1.12::numeric, v_card.level - 1)
+  );
 
   delete from public.user_cards where id = p_instance_id and user_id = v_user_id;
   update public.profiles as p
@@ -685,6 +687,74 @@ begin
     values (v_user_id, v_value, 'card_sale', jsonb_build_object('card', v_card.short_name, 'level', v_card.level, 'tier', v_card.tier));
 
   return jsonb_build_object('coins_awarded', v_value, 'balance', v_balance, 'card', v_card.short_name, 'level', v_card.level, 'tier', v_card.tier);
+end;
+$$;
+
+create or replace function public.sell_user_cards(p_instance_ids uuid[])
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_user_id uuid := auth.uid();
+  v_card record;
+  v_sale jsonb;
+  v_sales jsonb := '[]'::jsonb;
+  v_cards_sold integer := 0;
+  v_expected_count integer;
+  v_total bigint := 0;
+  v_balance bigint;
+begin
+  if v_user_id is null then raise exception 'Bitte zuerst anmelden.'; end if;
+  if p_instance_ids is null or cardinality(p_instance_ids) < 1 or cardinality(p_instance_ids) > 6 then
+    raise exception 'Wähle mindestens eine und höchstens sechs Karten aus.';
+  end if;
+  select count(distinct instance_id) into v_expected_count from unnest(p_instance_ids) as selected(instance_id);
+  if v_expected_count <> cardinality(p_instance_ids) then raise exception 'Dieselbe Karte wurde mehrfach ausgewählt.'; end if;
+
+  for v_card in
+    select uc.id, uc.level, c.rating, c.tier, c.short_name
+    from public.user_cards as uc
+    join public.cards as c on c.id = uc.card_id
+    where uc.id = any(p_instance_ids) and uc.user_id = v_user_id
+    order by uc.id
+    for update of uc
+  loop
+    v_total := v_total + round(
+      ((case v_card.tier when 'bronze' then 100 when 'gold' then 250 when 'platinum' then 500 else 1000 end)
+        + (v_card.rating * 5))
+      * power(1.12::numeric, v_card.level - 1)
+    );
+    v_cards_sold := v_cards_sold + 1;
+    v_sales := v_sales || jsonb_build_array(jsonb_build_object(
+      'card', v_card.short_name,
+      'level', v_card.level,
+      'tier', v_card.tier,
+      'coins_awarded', round(
+        ((case v_card.tier when 'bronze' then 100 when 'gold' then 250 when 'platinum' then 500 else 1000 end)
+          + (v_card.rating * 5))
+        * power(1.12::numeric, v_card.level - 1)
+      )
+    ));
+  end loop;
+
+  if v_cards_sold <> v_expected_count then raise exception 'Mindestens eine ausgewählte Karte gehört nicht zu deinem Bestand.'; end if;
+
+  delete from public.user_cards where id = any(p_instance_ids) and user_id = v_user_id;
+  update public.profiles as p
+    set coins = p.coins + v_total,
+        progress_xp = p.progress_xp + v_total
+    where p.id = v_user_id returning p.coins into v_balance;
+  if not found then raise exception 'Spielerprofil nicht gefunden.'; end if;
+
+  for v_sale in select value from jsonb_array_elements(v_sales) as sales(value)
+  loop
+    insert into public.coin_ledger(user_id, coins_delta, kind, detail)
+      values (v_user_id, (v_sale->>'coins_awarded')::bigint, 'card_sale', v_sale - 'coins_awarded');
+  end loop;
+
+  return jsonb_build_object('coins_awarded', v_total, 'balance', v_balance, 'cards_sold', v_cards_sold, 'cards', v_sales);
 end;
 $$;
 
@@ -873,6 +943,7 @@ revoke all on function public.purchase_pack(text) from public, anon;
 revoke all on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, text, boolean, integer, boolean) from public, anon;
 revoke all on function public.admin_grant_card(text, text) from public, anon;
 revoke all on function public.sell_user_card(uuid) from public, anon;
+revoke all on function public.sell_user_cards(uuid[]) from public, anon;
 revoke all on function public.upgrade_user_card(uuid) from public, anon;
 revoke all on function public.convert_f1_points(bigint) from public, anon;
 revoke all on function public.admin_award_race_points(text, smallint, text) from public, anon;
@@ -883,6 +954,7 @@ grant execute on function public.purchase_pack(text) to authenticated;
 grant execute on function public.admin_create_card(text, text, text, smallint, smallint, text, text, text, text, boolean, integer, boolean) to authenticated;
 grant execute on function public.admin_grant_card(text, text) to authenticated;
 grant execute on function public.sell_user_card(uuid) to authenticated;
+grant execute on function public.sell_user_cards(uuid[]) to authenticated;
 grant execute on function public.upgrade_user_card(uuid) to authenticated;
 grant execute on function public.convert_f1_points(bigint) to authenticated;
 grant execute on function public.admin_award_race_points(text, smallint, text) to authenticated;

@@ -244,8 +244,9 @@
 
 <section id="collection" class="page">
   <div class="section"><div class="container">
-    <div class="section-head"><div><h2>Meine Sammlung</h2><p>Deine Karten und Duplikate. Jede Karte kann einzeln verkauft werden.</p></div><div style="color:#999;font-size:11px">KARTEN <b id="collectionValue" style="color:#fff">0</b></div></div>
+    <div class="section-head"><div><h2>Meine Sammlung</h2><p>Deine Karten und Duplikate. Verkaufe Karten einzeln oder bis zu sechs auf einmal.</p></div><div style="color:#999;font-size:11px">KARTEN <b id="collectionValue" style="color:#fff">0</b></div></div>
     <div class="collection-head"><input class="search" id="search" placeholder="Search driver, team, year..." oninput="filterCards()"><select class="filter" id="rarityFilter" onchange="filterCards()"><option value="all">All Ratings</option><option value="legend">Legend</option><option value="icon">Icon</option><option value="epic">Epic</option><option value="rare">Rare</option></select><select class="filter" id="sortFilter" onchange="filterCards()"><option value="rating">Rating</option><option value="year">Year</option><option value="name">Name</option></select></div>
+    <div class="bulk-sale-controls" id="bulkSaleControls" hidden><button class="btn" id="bulkSaleModeButton" type="button" onclick="toggleBulkSellMode()">MEHRERE VERKAUFEN</button><span id="bulkSaleStatus" role="status">0 von 6 Karten ausgewählt</span><button class="btn red" id="bulkSellButton" type="button" onclick="sellSelectedCards()" disabled>AUSGEWÄHLTE VERKAUFEN</button></div>
     <div id="collectionMessage" class="account-status">Melde dich an, um deine persönliche Sammlung zu sehen.</div><div class="collection-grid" id="collectionGrid"></div>
   </div></section>
 </section>

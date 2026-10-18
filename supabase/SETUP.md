@@ -118,7 +118,7 @@ Für die Live-Vorschau, frei wählbare Kartenstufen und Bild-Uploads führe dana
 
 - F1-Platzierungspunkte: 25, 18, 15, 12, 10, 8, 6, 4, 2, 1 für Platz 1 bis 10. Die Gutschrift wird mit 100 multipliziert.
 - Umtausch: Je 10 F1-Punkte ergeben 90 Coins. Der Spieler kann den Maximalbetrag oder einen Teilbetrag in 10er-Schritten auswählen; es gibt kein Tageslimit.
-- Kartenverkauf wird serverseitig nach Kartenstufe, Rating und Kartenlevel berechnet.
+- Kartenverkauf wird serverseitig nach Kartenstufe, Rating und Kartenlevel berechnet. Jedes erreichte Level erhöht den Verkaufspreis um 12 % (Zinseszinseffekt); bis zu sechs Karten können gemeinsam verkauft werden.
 - Karten starten auf Level 1; ein Levelaufstieg kostet `aktuelles Level × 300` Coins, bis maximal Level 10.
 - Packpreise: Bronze 1.000, Platinum 5.000, Gold 9.500, Gold Double (10 Karten) 18.000, Legend 17.000 Coins.
 - Ziehungsquoten je Karte: Bronze 92 % Bronze / 8 % Gold (keine Platinum- oder Legend-Karten); Gold 92 % Gold / 7 % Platinum / 1 % Legend; Gold Double 96,5 % Gold / 3,2 % Platinum / 0,3 % Legend; Platinum 15 % Gold / 80 % Platinum / 5 % Legend; Legend 5 % Gold / 30 % Platinum / 65 % Legend.

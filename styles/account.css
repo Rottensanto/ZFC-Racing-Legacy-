@@ -87,3 +87,9 @@
 .legend-pack-senna{color:#ffdf8b!important;font-size:10px!important;line-height:1.45}
 @media(max-width:760px){.admin-grid{grid-template-columns:1fr}.account-summary{grid-template-columns:1fr}.form-row{grid-template-columns:1fr}.admin-inline-row{grid-template-columns:1fr}.admin-user-identity{grid-template-columns:1fr}.admin-user-identity span{text-align:left}}
 @media(max-width:760px){.admin-card-panel{grid-column:auto}.admin-card-editor{grid-template-columns:1fr}.admin-card-form{grid-template-columns:1fr}.admin-card-form .admin-card-image,.admin-card-submit{grid-column:auto}.admin-card-preview{width:min(100%,260px);margin:0 auto}.senna-promo{grid-template-columns:1fr;padding:23px}.senna-promo-card{width:min(58%,200px);grid-row:1}.senna-promo-copy{justify-items:center;text-align:center}}
+.bulk-sale-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:0 0 15px}
+.bulk-sale-controls[hidden]{display:none}
+.bulk-sale-controls span{flex:1;min-width:170px;color:#c2c5cb;font-size:12px}
+.bulk-sale-controls button:disabled{opacity:.5;cursor:not-allowed}
+.card-sale-selection{display:flex;align-items:center;justify-content:center;gap:6px;min-height:34px;padding:6px;border:1px solid #ff3046;background:#270b10;color:#fff;font-size:9px;font-weight:900;cursor:pointer}
+.card-sale-selection input{accent-color:#ff3046}
